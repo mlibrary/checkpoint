@@ -3,10 +3,10 @@
 require 'checkpoint/agent_resolver'
 require 'checkpoint/credential_resolver'
 require 'checkpoint/resource_resolver'
-require 'checkpoint/grant_repository'
+require 'checkpoint/permit_repository'
 
 module Checkpoint
-  class GrantResolver
+  class Authority
     attr_reader :user, :action, :target, :grants
     attr_writer :agent_resolver, :credential_resolver, :resource_resolver, :repository
 
@@ -25,8 +25,8 @@ module Checkpoint
       #  action => credential tokens
       #  target => resource tokens
 
-      # Grant.where(agent: agents, credential: credentials, resource: resources)
-      # SELECT * FROM grants
+      # Permit.where(agent: agents, credential: credentials, resource: resources)
+      # SELECT * FROM permits
       # WHERE agent IN('user:gkostin', 'account-type:umich', 'affiliation:lib-staff')
       # AND credential IN('permission:edit', 'role:editor')
       # AND resource IN('listing:17', 'type:listing')
@@ -41,13 +41,13 @@ module Checkpoint
       #   if current_user has at least one row in each of of these columns,
       #   they have been "granted permission"
 
-      grants.any?
+      permits.any?
     end
 
     private
 
-    def grants
-      repository.grants_for(agents, credentials, resources)
+    def permits
+      repository.permits_for(agents, credentials, resources)
     end
 
     def agents
@@ -75,7 +75,7 @@ module Checkpoint
     end
 
     def repository
-      @repository ||= GrantRepository.new
+      @repository ||= PermitRepository.new
     end
   end
 end

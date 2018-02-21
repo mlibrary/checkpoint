@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'checkpoint/grant_resolver'
+require 'checkpoint/authority'
 
 class FakeRepository
-  def grants_for(subjects, credentials, resources)
+  def permits_for(subjects, credentials, resources)
     if credentials.include?('permission:edit') && subjects.include?('user:anna')
       [['user:anna', 'permission:edit', 'listing:17']]
     elsif credentials.include?('permission:read') && subjects.include?('account-type:umich')
@@ -14,7 +14,7 @@ class FakeRepository
   end
 end
 
-RSpec.describe Checkpoint::GrantResolver do
+RSpec.describe Checkpoint::Authority do
 
   let(:anna)    { double('User', username: 'anna', known?: true) }
   let(:katy)    { double('User', username: 'katy', known?: true) }
@@ -35,8 +35,8 @@ RSpec.describe Checkpoint::GrantResolver do
   let(:resource_resolver)   { instance_double('ResourceResolver', resolve: []) }
   let(:listing_resolver)    { instance_double('ResourceResolver', resolve: ['listing:17', 'type:listing']) }
 
-  subject(:resolver) {
-    Checkpoint::GrantResolver.new(user, action, target).tap do |resolver|
+  subject(:authority) {
+    Checkpoint::Authority.new(user, action, target).tap do |resolver|
       resolver.agent_resolver = agent_resolver
       resolver.credential_resolver = credential_resolver
       resolver.resource_resolver = resource_resolver
@@ -53,8 +53,8 @@ RSpec.describe Checkpoint::GrantResolver do
       let(:action) { :read }
       let(:credential_resolver) { read_resolver }
 
-      it "finds a grant" do
-        expect(resolver.any?).to be true
+      it "finds a permit" do
+        expect(authority.any?).to be true
       end
     end
 
@@ -62,8 +62,8 @@ RSpec.describe Checkpoint::GrantResolver do
       let(:action) { :edit }
       let(:credential_resolver) { edit_resolver }
 
-      it "finds a grant" do
-        expect(resolver.any?).to be true
+      it "finds a permit" do
+        expect(authority.any?).to be true
       end
     end
   end
@@ -76,8 +76,8 @@ RSpec.describe Checkpoint::GrantResolver do
       let(:action) { :read }
       let(:credential_resolver) { read_resolver }
 
-      it "finds a grant" do
-        expect(resolver.any?).to be true
+      it "finds a permit" do
+        expect(authority.any?).to be true
       end
     end
 
@@ -85,8 +85,8 @@ RSpec.describe Checkpoint::GrantResolver do
       let(:action) { :edit }
       let(:credential_resolver) { edit_resolver }
 
-      it "does not find a grant" do
-        expect(resolver.any?).to be false
+      it "does not find a permit" do
+        expect(authority.any?).to be false
       end
     end
   end
@@ -99,8 +99,8 @@ RSpec.describe Checkpoint::GrantResolver do
       let(:action) { :read }
       let(:credential_resolver) { read_resolver }
 
-      it "does not find any grants" do
-        expect(resolver.any?).to eq false
+      it "does not find any permit" do
+        expect(authority.any?).to eq false
       end
     end
 
@@ -108,8 +108,8 @@ RSpec.describe Checkpoint::GrantResolver do
       let(:action) { :edit }
       let(:credential_resolver) { edit_resolver }
 
-      it "does not find any grants" do
-        expect(resolver.any?).to eq false
+      it "does not find any permits" do
+        expect(authority.any?).to eq false
       end
     end
   end
