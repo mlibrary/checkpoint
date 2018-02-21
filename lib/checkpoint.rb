@@ -11,6 +11,10 @@ module Checkpoint
   # Your code goes here...
 end
 
+require 'checkpoint/agent'
+require 'checkpoint/credential'
+require 'checkpoint/resource'
+
 require 'checkpoint/permission_mapper'
 require 'checkpoint/user_directory'
 
