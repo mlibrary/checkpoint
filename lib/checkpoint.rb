@@ -5,11 +5,6 @@ require "checkpoint/version"
 require 'sequel'
 require 'mysql2'
 require 'ettin'
-begin
-  require 'pry'
-rescue StandardError
-  LoadError
-end
 
 # All of the Checkpoint components are contained within this top-level module.
 module Checkpoint

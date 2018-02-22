@@ -84,5 +84,17 @@ RSpec.describe Checkpoint::CredentialResolver do
         is_expected.to include('role:admin')
       end
     end
+
+    context "when resolving destroy" do
+      subject { resolver.resolve(:destroy) }
+
+      it "includes ':edit'" do
+        is_expected.to include('permission:destroy')
+      end
+
+      it "does not include any roles" do
+        is_expected.to eq(['permission:destroy'])
+      end
+    end
   end
 end
