@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/mlibrary/checkpoint.svg?branch=master)](https://travis-ci.org/mlibrary/checkpoint?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/mlibrary/checkpoint/badge.svg?branch=master)](https://coveralls.io/github/mlibrary/checkpoint?branch=master)
+
 # Checkpoint
 
 Checkpoint provides a model and infrastructure for policy-based authorization,

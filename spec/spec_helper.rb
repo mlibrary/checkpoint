@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
+require "coveralls"
+Coveralls.wear!
+
 require "checkpoint"
 
 RSpec.configure do |config|
