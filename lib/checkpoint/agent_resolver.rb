@@ -3,6 +3,15 @@
 require 'checkpoint/user_directory'
 
 module Checkpoint
+  # An AgentResolver takes a concrete user object and resolves it into the set
+  # of {Agent}s that the user has authenticated as. This has the effect of
+  # allowing a Permit to any of those agents to take effect when authorizing an
+  # action by this user.
+
+  # For example, a known user will be resolved into an {Agent} with the user
+  # type and their username as the ID, at the very least. The set of {Agents}
+  # resolved can be extended by implementing a {UserDirectory} for application
+  # needs such as group membership, IP address-based identification and so on.
   class AgentResolver
     def initialize(directory: UserDirectory.new)
       @directory = directory

@@ -25,4 +25,3 @@ module Checkpoint
     end
   end
 end
-

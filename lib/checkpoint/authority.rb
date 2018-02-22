@@ -6,6 +6,9 @@ require 'checkpoint/resource_resolver'
 require 'checkpoint/permit_repository'
 
 module Checkpoint
+  # An Authority is the central point of contact for authorization questions in
+  # Checkpoint. It checks whether there are permits that would allow a given
+  # action to be taken.
   class Authority
     attr_reader :user, :action, :target, :grants
     attr_writer :agent_resolver, :credential_resolver, :resource_resolver, :repository

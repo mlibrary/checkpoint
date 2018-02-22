@@ -3,6 +3,9 @@
 require 'checkpoint/permission_mapper'
 
 module Checkpoint
+  # A CredentialResolver takes a concrete action and resolves it into
+  # any {Credential}s that would permit the action. It uses a
+  # {PermissionMapper} to accommodate application extensions to this resolution.
   class CredentialResolver
     def initialize(permission_mapper: PermissionMapper.new)
       @permission_mapper = permission_mapper

@@ -18,7 +18,6 @@ class FakeDirectory
 end
 
 RSpec.describe Checkpoint::AgentResolver do
-
   context "with a known user" do
     let(:bill)  { double('User', username: 'bill') }
     let(:bob)   { double('User', username: 'bob') }
@@ -28,15 +27,21 @@ RSpec.describe Checkpoint::AgentResolver do
     subject(:resolver) { described_class.new(directory: directory) }
 
     it "resolves User `bill`'s tokens" do
-      expect(resolver.resolve(bill)).to include('account-type:umich', 'user:bill', 'affiliation:faculty')
+      expect(resolver.resolve(bill)).to include(
+        'account-type:umich', 'user:bill', 'affiliation:faculty'
+      )
     end
 
     it "resolves User `bob`'s tokens" do
-      expect(resolver.resolve(bob)).to include('account-type:umich', 'user:bob', 'affiliation:lib-staff')
+      expect(resolver.resolve(bob)).to include(
+        'account-type:umich', 'user:bob', 'affiliation:lib-staff'
+      )
     end
 
     it "resolves User `jane`'s tokens" do
-      expect(resolver.resolve(jane)).to include('account-type:umich', 'user:jane', 'affiliation:lib-staff', 'affiliation:faculty')
+      expect(resolver.resolve(jane)).to include(
+        'account-type:umich', 'user:jane', 'affiliation:lib-staff', 'affiliation:faculty'
+      )
     end
 
     it "resolves guest user's tokens" do

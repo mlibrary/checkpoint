@@ -10,7 +10,7 @@ class FakeRoles
   def roles_granting(action)
     case action.to_sym
     when :edit
-      [:editor, :admin]
+      %i[editor admin]
     else
       []
     end
@@ -22,7 +22,7 @@ class EmptyRoles
     [action.to_sym]
   end
 
-  def roles_granting(action)
+  def roles_granting(_action)
     []
   end
 end
@@ -70,7 +70,7 @@ RSpec.describe Checkpoint::CredentialResolver do
     let(:resolver) { described_class.new(permission_mapper: mapper) }
 
     context "when resolving edit" do
-      subject        { resolver.resolve(:edit) }
+      subject { resolver.resolve(:edit) }
 
       it "includes 'permission:edit'" do
         is_expected.to include('permission:edit')

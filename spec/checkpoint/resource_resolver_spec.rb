@@ -28,5 +28,4 @@ RSpec.describe Checkpoint::ResourceResolver do
   it "resolves a newspaper to its type token" do
     expect(resolver.resolve(newspaper)).to include('type:newspaper')
   end
-
 end

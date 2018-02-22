@@ -3,7 +3,7 @@
 require 'checkpoint/authority'
 
 class FakeRepository
-  def permits_for(subjects, credentials, resources)
+  def permits_for(subjects, credentials, _resources)
     if credentials.include?('permission:edit') && subjects.include?('user:anna')
       [['user:anna', 'permission:edit', 'listing:17']]
     elsif credentials.include?('permission:read') && subjects.include?('account-type:umich')
@@ -15,7 +15,6 @@ class FakeRepository
 end
 
 RSpec.describe Checkpoint::Authority do
-
   let(:anna)    { double('User', username: 'anna', known?: true) }
   let(:katy)    { double('User', username: 'katy', known?: true) }
   let(:guest)   { double('User', username: '<guest>', known?: false) }
@@ -23,30 +22,45 @@ RSpec.describe Checkpoint::Authority do
   let(:action)  { :read }
   let(:target)  { listing }
 
-  let(:agent_resolver)    { instance_double('AgentResolver', resolve: []) }
-  let(:anna_resolver)       { instance_double('AgentResolver', resolve: ['user:anna', 'account-type:umich', 'affiliation:lib-staff']) }
-  let(:katy_resolver)       { instance_double('AgentResolver', resolve: ['user:katy', 'account-type:umich', 'affiliation:faculty']) }
-  let(:guest_resolver)      { instance_double('AgentResolver', resolve: ['account-type:guest']) }
+  let(:agent_resolver) { instance_double('AgentResolver', resolve: []) }
+  let(:guest_resolver) { instance_double('AgentResolver', resolve: ['account-type:guest']) }
+
+  let(:anna_resolver) do
+    instance_double(
+      'AgentResolver',
+      resolve: ['user:anna', 'account-type:umich', 'affiliation:lib-staff']
+    )
+  end
+
+  let(:katy_resolver) do
+    instance_double(
+      'AgentResolver',
+      resolve: ['user:katy', 'account-type:umich', 'affiliation:faculty']
+    )
+  end
 
   let(:credential_resolver) { instance_double('CredentialResolver', resolve: []) }
   let(:read_resolver)       { instance_double('CredentialResolver', resolve: ['permission:read']) }
   let(:edit_resolver)       { instance_double('CredentialResolver', resolve: ['permission:edit']) }
 
-  let(:resource_resolver)   { instance_double('ResourceResolver', resolve: []) }
-  let(:listing_resolver)    { instance_double('ResourceResolver', resolve: ['listing:17', 'type:listing']) }
+  let(:resource_resolver) { instance_double('ResourceResolver', resolve: []) }
 
-  subject(:authority) {
+  let(:listing_resolver) do
+    instance_double('ResourceResolver', resolve: ['listing:17', 'type:listing'])
+  end
+
+  subject(:authority) do
     Checkpoint::Authority.new(user, action, target).tap do |resolver|
       resolver.agent_resolver = agent_resolver
       resolver.credential_resolver = credential_resolver
       resolver.resource_resolver = resource_resolver
       resolver.repository = FakeRepository.new
     end
-  }
+  end
 
   context "for Anna (Library user)" do
     let(:user) { anna }
-    let(:agent_resolver)  { anna_resolver }
+    let(:agent_resolver) { anna_resolver }
     let(:resource_resolver) { listing_resolver }
 
     context "when reading listing 17" do
@@ -113,5 +127,4 @@ RSpec.describe Checkpoint::Authority do
       end
     end
   end
-
 end

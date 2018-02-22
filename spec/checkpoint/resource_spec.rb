@@ -19,10 +19,9 @@ module Checkpoint
     end
 
     describe "#to_s" do
-      it 'gives an resource URI' do
+      it 'gives a resource URI' do
         expect(resource.to_s).to eq('resource://a_type/an_id')
       end
     end
   end
 end
-
