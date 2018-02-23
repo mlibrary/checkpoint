@@ -32,8 +32,14 @@ module Checkpoint
     end
 
     # @return [String] a URI for this agent, including its type and id
-    def to_s
+    def uri
       "agent://#{type}/#{id}"
+    end
+
+    # @return [String] this agent's token
+    # @see #token
+    def to_s
+      token
     end
   end
 end

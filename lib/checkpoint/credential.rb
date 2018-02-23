@@ -34,8 +34,14 @@ module Checkpoint
     end
 
     # @return [String] a URI for this credential, including its type and id
-    def to_s
+    def uri
       "credential://#{type}/#{id}"
+    end
+
+    # @return [String] this credential's token
+    # @see #token
+    def to_s
+      token
     end
   end
 end

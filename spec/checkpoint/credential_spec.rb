@@ -18,9 +18,13 @@ module Checkpoint
       expect(credential.token).to eq('a_type:an_id')
     end
 
+    it 'gives a credential URI' do
+      expect(credential.uri).to eq('credential://a_type/an_id')
+    end
+
     describe "#to_s" do
-      it 'gives a credential URI' do
-        expect(credential.to_s).to eq('credential://a_type/an_id')
+      it 'gives the token' do
+        expect(credential.to_s).to eq('a_type:an_id')
       end
     end
   end

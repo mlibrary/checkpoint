@@ -18,9 +18,13 @@ module Checkpoint
       expect(agent.token).to eq('a_type:an_id')
     end
 
+    it 'gives an agent URI' do
+      expect(agent.uri).to eq('agent://a_type/an_id')
+    end
+
     describe "#to_s" do
-      it 'gives an agent URI' do
-        expect(agent.to_s).to eq('agent://a_type/an_id')
+      it 'gives the token' do
+        expect(agent.to_s).to eq('a_type:an_id')
       end
     end
   end

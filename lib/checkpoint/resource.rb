@@ -50,8 +50,14 @@ module Checkpoint
     end
 
     # @return [String] a URI for this resource, including its type and id
-    def to_s
+    def uri
       "resource://#{type}/#{id}"
+    end
+
+    # @return [String] this resource's token
+    # @see #token
+    def to_s
+      token
     end
   end
 end
