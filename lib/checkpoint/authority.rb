@@ -3,23 +3,26 @@
 require 'checkpoint/agent_resolver'
 require 'checkpoint/credential_resolver'
 require 'checkpoint/resource_resolver'
-require 'checkpoint/permit_repository'
+require 'checkpoint/permits'
 
 module Checkpoint
   # An Authority is the central point of contact for authorization questions in
   # Checkpoint. It checks whether there are permits that would allow a given
   # action to be taken.
   class Authority
-    attr_reader :user, :action, :target, :grants
-    attr_writer :agent_resolver, :credential_resolver, :resource_resolver, :repository
+    def initialize(
+      agent_resolver: AgentResolver.new,
+      credential_resolver: CredentialResolver.new,
+      resource_resolver: ResourceResolver.new,
+      permits: Permits.new)
 
-    def initialize(user, action, target)
-      @user = user
-      @action = action
-      @target = target
+      @agent_resolver      = agent_resolver
+      @credential_resolver = credential_resolver
+      @resource_resolver   = resource_resolver
+      @permits             = permits
     end
 
-    def any?
+    def permits?(agent, credential, resource)
       # Conceptually equivalent to:
       #   can?(agent, action, target)
       #   can?(current_user, 'edit', @listing)
@@ -43,42 +46,15 @@ module Checkpoint
       #        ^^^                       ^^^^              ^^^^
       #   if current_user has at least one row in each of of these columns,
       #   they have been "granted permission"
-
-      permits.any?
+      permits.for(
+        agent_resolver.resolve(agent),
+        credential_resolver.resolve(credential),
+        resource_resolver.resolve(resource)
+      ).any?
     end
 
     private
 
-    def permits
-      repository.permits_for(agents, credentials, resources)
-    end
-
-    def agents
-      agent_resolver.resolve(user)
-    end
-
-    def credentials
-      credential_resolver.resolve(action)
-    end
-
-    def resources
-      resource_resolver.resolve(target)
-    end
-
-    def agent_resolver
-      @agent_resolver ||= AgentResolver.new
-    end
-
-    def credential_resolver
-      @credential_resolver ||= CredentialResolver.new
-    end
-
-    def resource_resolver
-      @resource_resolver ||= ResourceResolver.new
-    end
-
-    def repository
-      @repository ||= PermitRepository.new
-    end
+    attr_reader :agent_resolver, :credential_resolver, :resource_resolver, :permits
   end
 end

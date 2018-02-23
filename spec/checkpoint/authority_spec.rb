@@ -2,8 +2,8 @@
 
 require 'checkpoint/authority'
 
-class FakeRepository
-  def permits_for(subjects, credentials, _resources)
+class FakePermits
+  def for(subjects, credentials, _resources)
     if credentials.include?('permission:edit') && subjects.include?('user:anna')
       [['user:anna', 'permission:edit', 'listing:17']]
     elsif credentials.include?('permission:read') && subjects.include?('account-type:umich')
@@ -49,14 +49,16 @@ RSpec.describe Checkpoint::Authority do
     instance_double('ResourceResolver', resolve: ['listing:17', 'type:listing'])
   end
 
-  subject(:authority) do
-    Checkpoint::Authority.new(user, action, target).tap do |resolver|
-      resolver.agent_resolver = agent_resolver
-      resolver.credential_resolver = credential_resolver
-      resolver.resource_resolver = resource_resolver
-      resolver.repository = FakeRepository.new
-    end
+  let(:authority) do
+    Checkpoint::Authority.new(
+      agent_resolver: agent_resolver,
+      credential_resolver: credential_resolver,
+      resource_resolver:  resource_resolver,
+      permits: FakePermits.new
+    )
   end
+
+  subject(:permitted?) { authority.permits?(user, action, target) }
 
   context "for Anna (Library user)" do
     let(:user) { anna }
@@ -67,8 +69,8 @@ RSpec.describe Checkpoint::Authority do
       let(:action) { :read }
       let(:credential_resolver) { read_resolver }
 
-      it "finds a permit" do
-        expect(authority.any?).to be true
+      it "permits" do
+        expect(permitted?).to be true
       end
     end
 
@@ -76,8 +78,8 @@ RSpec.describe Checkpoint::Authority do
       let(:action) { :edit }
       let(:credential_resolver) { edit_resolver }
 
-      it "finds a permit" do
-        expect(authority.any?).to be true
+      it "permits" do
+        expect(permitted?).to be true
       end
     end
   end
@@ -90,8 +92,8 @@ RSpec.describe Checkpoint::Authority do
       let(:action) { :read }
       let(:credential_resolver) { read_resolver }
 
-      it "finds a permit" do
-        expect(authority.any?).to be true
+      it "permits" do
+        expect(permitted?).to be true
       end
     end
 
@@ -99,8 +101,8 @@ RSpec.describe Checkpoint::Authority do
       let(:action) { :edit }
       let(:credential_resolver) { edit_resolver }
 
-      it "does not find a permit" do
-        expect(authority.any?).to be false
+      it "does not permit" do
+        expect(permitted?).to be false
       end
     end
   end
@@ -113,8 +115,8 @@ RSpec.describe Checkpoint::Authority do
       let(:action) { :read }
       let(:credential_resolver) { read_resolver }
 
-      it "does not find any permit" do
-        expect(authority.any?).to eq false
+      it "does not permit" do
+        expect(permitted?).to eq false
       end
     end
 
@@ -122,8 +124,8 @@ RSpec.describe Checkpoint::Authority do
       let(:action) { :edit }
       let(:credential_resolver) { edit_resolver }
 
-      it "does not find any permits" do
-        expect(authority.any?).to eq false
+      it "does not permit" do
+        expect(permitted?).to eq false
       end
     end
   end

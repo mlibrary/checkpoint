@@ -22,5 +22,5 @@ require 'checkpoint/agent_resolver'
 require 'checkpoint/credential_resolver'
 require 'checkpoint/resource_resolver'
 
-require 'checkpoint/permit_repository'
+require 'checkpoint/permits'
 require 'checkpoint/authority'
