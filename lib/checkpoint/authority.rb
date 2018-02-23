@@ -53,6 +53,13 @@ module Checkpoint
       ).any?
     end
 
+    # Dummy authority that rejects everything
+    class RejectAll
+      def permits?(*)
+        false
+      end
+    end
+
     private
 
     attr_reader :agent_resolver, :credential_resolver, :resource_resolver, :permits

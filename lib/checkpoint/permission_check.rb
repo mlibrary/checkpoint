@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+require 'checkpoint/authority'
+
 module Checkpoint
   # A PermissionCheck is a self-evaluting rule that captures the user, action,
   # and target, and checks if the authority permits the action.
   class PermissionCheck
     attr_reader :user, :action, :target
 
-    def initialize(user, action, target, authority: RejectAll.new)
+    def initialize(user, action, target, authority: Authority::RejectAll.new)
       @user      = user
       @action    = action.to_sym
       @target    = target
@@ -18,13 +20,6 @@ module Checkpoint
     end
 
     private
-
-    # Dummy authority that rejects everything
-    class RejectAll
-      def permits?(*)
-        false
-      end
-    end
 
     attr_reader :authority
   end
