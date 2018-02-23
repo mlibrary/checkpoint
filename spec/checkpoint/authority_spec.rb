@@ -2,8 +2,8 @@
 
 require 'checkpoint/authority'
 
-class FakeRepository
-  def permits_for(subjects, credentials, _resources)
+class FakePermits
+  def for(subjects, credentials, _resources)
     if credentials.include?('permission:edit') && subjects.include?('user:anna')
       [['user:anna', 'permission:edit', 'listing:17']]
     elsif credentials.include?('permission:read') && subjects.include?('account-type:umich')
@@ -54,7 +54,7 @@ RSpec.describe Checkpoint::Authority do
       resolver.agent_resolver = agent_resolver
       resolver.credential_resolver = credential_resolver
       resolver.resource_resolver = resource_resolver
-      resolver.repository = FakeRepository.new
+      resolver.permits = FakePermits.new
     end
   end
 

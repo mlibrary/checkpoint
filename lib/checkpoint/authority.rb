@@ -3,7 +3,7 @@
 require 'checkpoint/agent_resolver'
 require 'checkpoint/credential_resolver'
 require 'checkpoint/resource_resolver'
-require 'checkpoint/permit_repository'
+require 'checkpoint/permits'
 
 module Checkpoint
   # An Authority is the central point of contact for authorization questions in
@@ -11,7 +11,7 @@ module Checkpoint
   # action to be taken.
   class Authority
     attr_reader :user, :action, :target, :grants
-    attr_writer :agent_resolver, :credential_resolver, :resource_resolver, :repository
+    attr_writer :agent_resolver, :credential_resolver, :resource_resolver, :permits
 
     def initialize(user, action, target)
       @user = user
@@ -44,14 +44,10 @@ module Checkpoint
       #   if current_user has at least one row in each of of these columns,
       #   they have been "granted permission"
 
-      permits.any?
+      permits.for(agents, credentials, resources).any?
     end
 
     private
-
-    def permits
-      repository.permits_for(agents, credentials, resources)
-    end
 
     def agents
       agent_resolver.resolve(user)
@@ -77,8 +73,8 @@ module Checkpoint
       @resource_resolver ||= ResourceResolver.new
     end
 
-    def repository
-      @repository ||= PermitRepository.new
+    def permits
+      @permits ||= Permits.new
     end
   end
 end
