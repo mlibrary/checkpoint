@@ -26,7 +26,7 @@ RSpec.describe Checkpoint::RoleCheck do
   end
 
   context 'when there is no matching permit' do
-    let(:authority) { double('authority', permitted?: false) }
+    let(:authority) { double('authority', permits?: false) }
     subject(:check) do
       described_class.new(user, role, target, authority: authority)
     end
@@ -37,7 +37,7 @@ RSpec.describe Checkpoint::RoleCheck do
   end
 
   context 'when there is a matching permit' do
-    let(:authority) { double('authority', permitted?: true) }
+    let(:authority) { double('authority', permits?: true) }
     subject(:check) do
       described_class.new(user, role, target, authority: authority)
     end

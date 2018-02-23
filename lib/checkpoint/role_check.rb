@@ -14,14 +14,14 @@ module Checkpoint
     end
 
     def satisfied?
-      authority.permitted?(user, role, target)
+      authority.permits?(user, role, target)
     end
 
     private
 
     # Dummy authority that rejects everything
     class RejectAll
-      def permitted?(*)
+      def permits?(*)
         false
       end
     end
