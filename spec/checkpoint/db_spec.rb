@@ -20,7 +20,12 @@ RSpec.describe Checkpoint::DB do
   describe '#initialize!' do
     it 'connects with a URL string' do
       Checkpoint::DB.initialize!(url: 'mock:///')
-      expect(Checkpoint::DB.db.uri).to eq 'mock:///'
+      expect(Checkpoint::DB.db.adapter_scheme).to eq :mock
+    end
+
+    it 'connects with an options hash' do
+      Checkpoint::DB.initialize!(opts: { adapter: 'sqlite' })
+      expect(Checkpoint::DB.db.adapter_scheme).to eq :sqlite
     end
 
     it 'returns the database' do

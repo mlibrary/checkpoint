@@ -18,12 +18,14 @@ module Checkpoint
       # design decision in Sequel that the schema is examined at the time of
       # extending Sequel::Model.
       #
-      # @param url [String] A Sequel database URL
-      # @param db [Sequel::Database] An already-connected database;
+      # @param url  [String] A Sequel database URL
+      # @param opts [Hash] A set of connection options;
       #   if supplied, `url` will be ignored
+      # @param db [Sequel::Database] An already-connected database;
+      #   if supplied, `url` and `opts` will be ignored
       # @return [Sequel::Database] The initialized database connection
-      def initialize!(url: nil, db: nil)
-        @db = db || Sequel.connect(url)
+      def initialize!(url: nil, opts: nil, db: nil)
+        @db = db || Sequel.connect(opts || url)
         begin
           require_relative 'db/permit'
         rescue Sequel::DatabaseError => e
