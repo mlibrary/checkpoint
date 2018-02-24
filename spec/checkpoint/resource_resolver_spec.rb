@@ -62,12 +62,8 @@ RSpec.describe Checkpoint::ResourceResolver do
     let(:wildcard) { build('entity', all_ids) }
     subject(:resources) { resolver.resolve(entity) }
 
-    it 'calls #to_resource on the entity' do
-      expect(entity).to receive(:to_resource)
-      resources
-    end
-
     it 'lets the entity convert itself to a resource' do
+      expect(entity).to receive(:to_resource)
       expect(resources).to include(resource)
     end
 

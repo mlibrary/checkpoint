@@ -1,47 +1,31 @@
 # frozen_string_literal: true
 
-require 'checkpoint/user_directory'
-
 module Checkpoint
-  # An AgentResolver takes a concrete user object and resolves it into the set
-  # of {Agent}s that the user has authenticated as. This has the effect of
-  # allowing a Permit to any of those agents to take effect when authorizing an
-  # action by this user.
-
-  # For example, a known user will be resolved into an {Agent} with the user
-  # type and their username as the ID, at the very least. The set of {Agent}s
-  # resolved can be extended by implementing a {UserDirectory} for application
-  # needs such as group membership, IP address-based identification and so on.
+  # An AgentResolver takes a concrete user (or other account/actor) object and
+  # resolves it into the set of {Agent}s that the user represents. This has the
+  # effect of allowing a Permit to any of those agents to take effect when
+  # authorizing an action by this user.
+  #
+  # This implementation only resolves the user into one agent, using the default
+  # conversion.
+  #
+  # To extend the set of {Agent}s resolved, implement a specialized version
+  # that returns an array of agents from #resolve. This customized
+  # implementation would typically be injected to an application-wide
+  # {Checkpoint::Authority}, rather than being used directly.
+  #
+  # For example, a custom resolver might add a group agent for each group that
+  # the user is a member of, or IP address-based geographical regions or
+  # organizational affiliations.
   class AgentResolver
-    def initialize(directory: UserDirectory.new)
-      @directory = directory
-    end
-
-    def resolve(user)
-      [user_token(user)] + additional_tokens(user)
-    end
-
-    private
-
-    attr_reader :directory
-
-    def user_token(user)
-      "user:#{user.username}"
-    end
-
-    def additional_tokens(user)
-      attributes = directory.attributes_for(user)
-      account_tokens(attributes) + affiliation_tokens(attributes)
-    end
-
-    def account_tokens(attributes)
-      type = attributes[:account_type] || 'guest'
-      ["account-type:#{type}"]
-    end
-
-    def affiliation_tokens(attributes)
-      affiliations = attributes[:affiliations] || []
-      affiliations.map { |a| "affiliation:#{a}" }
+    # Resolve an actor to a list of agents it represents.
+    #
+    # If extending or overriding, you will most likely want to either call
+    # super, or use the default conversion directly.
+    # @return [[Checkpoint::Agent]] an array of agents for this actor
+    # @see Checkpoint::Agent.from
+    def resolve(actor)
+      [Checkpoint::Agent.from(actor)]
     end
   end
 end

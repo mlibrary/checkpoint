@@ -12,11 +12,11 @@ module Checkpoint
 end
 
 require 'checkpoint/agent'
+require 'checkpoint/agent_conversion'
 require 'checkpoint/credential'
 require 'checkpoint/resource'
 
 require 'checkpoint/permission_mapper'
-require 'checkpoint/user_directory'
 
 require 'checkpoint/agent_resolver'
 require 'checkpoint/credential_resolver'
