@@ -9,7 +9,7 @@ module Checkpoint
   # action by this user.
 
   # For example, a known user will be resolved into an {Agent} with the user
-  # type and their username as the ID, at the very least. The set of {Agents}
+  # type and their username as the ID, at the very least. The set of {Agent}s
   # resolved can be extended by implementing a {UserDirectory} for application
   # needs such as group membership, IP address-based identification and so on.
   class AgentResolver

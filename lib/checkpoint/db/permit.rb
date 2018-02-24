@@ -25,6 +25,7 @@ module Checkpoint
 
       # rubocop:enable Metrics/MethodLength
 
+      # The default/system zone
       def self.default_zone
         'system'
       end

@@ -2,10 +2,12 @@
 
 # Note: we do not require db/permit because Sequel requires the connection
 # to be set up before defining the model classes. The arrangment here
-# assumes that DB.initialize! will have been called if the default repository
+# assumes that DB.initialize! will have been called if the default model
 # is to be used. In tests, that is done by spec/sequel_helper.rb. In an
 # application, there should be an initializer that reads whatever appropriate
 # configuration and does the initialization.
+
+require 'checkpoint/db'
 
 module Checkpoint
   # The repository of permits -- a simple wrapper for the Sequel Datastore / permits table.
