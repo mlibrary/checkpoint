@@ -24,3 +24,6 @@ require 'checkpoint/resource_resolver'
 
 require 'checkpoint/permits'
 require 'checkpoint/authority'
+
+require 'checkpoint/role_check'
+require 'checkpoint/permission_check'

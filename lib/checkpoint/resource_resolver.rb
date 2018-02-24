@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'checkpoint/resource'
+
 module Checkpoint
   # A ResourceResolver takes a concrete object (like a model instance) and
   # resolves it into all {Resource}s for which a permit would allow an action.
@@ -12,17 +14,41 @@ module Checkpoint
   # mechanism to mirror the {PermissionMapper}.
   class ResourceResolver
     def resolve(target)
-      [entity_token(target), type_token(target)]
+      [entity_resource(target), wildcard_resource(target)]
     end
 
     private
 
-    def entity_token(target)
-      "#{target.entity_type}:#{target.id}"
+    def entity_resource(target)
+      if target.respond_to?(:to_resource)
+        target.to_resource
+      else
+        Resource.new(resource_type(target), resource_id(target))
+      end
     end
 
-    def type_token(target)
-      "type:#{target.entity_type}"
+    def wildcard_resource(target)
+      Resource.new(resource_type(target), Resource::ALL)
+    end
+
+    def resource_id(target)
+      if target.respond_to?(:resource_id)
+        target.resource_id
+      else
+        target.id
+      end
+    end
+
+    def resource_type(target)
+      if target.respond_to?(:to_resource)
+        target.to_resource.type
+      elsif target.respond_to?(:resource_type)
+        target.resource_type
+      elsif target.respond_to?(:type)
+        target.type
+      else
+        target.class.to_s
+      end
     end
   end
 end

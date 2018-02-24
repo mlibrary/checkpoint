@@ -29,19 +29,34 @@ module Checkpoint
   class Resource
     attr_reader :type, :id
 
+    # Special string to be used when permitting or searching for permits on all
+    # types or all resources
+    ALL = '(all)'
+
     # Create a new Resource representing a domain entity or concept that would
     # be acted upon.
     #
     # @param type [String] the application-determined type of this resource.
     #   This might correspond to a model class or other type of named concept
-    #   in the application.
+    #   in the application. The type is always coerced to String with `#to_s`
+    #   in case something else is supplied.
     #
     # @param id [String] the application-resolvable identifier for this
     #   resource. For example, this might be the ID of a model object, the
-    #   name of a section .
+    #   name of a section. The id is always coerced to String with `#to_s` in
+    #   case something else is supplied.
     def initialize(type, id)
-      @type = type
-      @id = id
+      @type = type.to_s
+      @id = id.to_s
+    end
+
+    # Get the special "all" Resource. This is a singleton that represents all
+    # resources of all types. It is used to grant permissions or roles within
+    # a zone, but not specific to a particular resource.
+    #
+    # @return [Resource] the special "all" Resource
+    def self.all
+      @all ||= new(ALL, ALL).freeze
     end
 
     # @return [String] a token suitable for granting or matching this resource
@@ -59,5 +74,13 @@ module Checkpoint
     def to_s
       token
     end
+
+    # Compare with another Resource for equality. Consider them to represent
+    # the same resource if `other` is a Resource, has the same type, and same id.
+    def eql?(other)
+      other.is_a?(Resource) && type == other.type && id == other.id
+    end
+
+    alias == eql?
   end
 end
