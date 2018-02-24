@@ -5,6 +5,7 @@
 /spec/reports/
 /tmp/
 
+/db/*.sqlite3
 Gemfile.lock
 
 # rspec failure tracking

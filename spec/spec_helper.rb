@@ -2,7 +2,9 @@
 
 require "bundler/setup"
 require "coveralls"
-Coveralls.wear!
+Coveralls.wear! do
+  add_filter 'spec/sequel_helper.rb'
+end
 
 require "checkpoint"
 
