@@ -14,8 +14,5 @@ end
 require 'checkpoint/agent'
 require 'checkpoint/credential'
 require 'checkpoint/resource'
-
 require 'checkpoint/authority'
-
-require 'checkpoint/role_check'
-require 'checkpoint/permission_check'
+require 'checkpoint/query'

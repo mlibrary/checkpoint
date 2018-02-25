@@ -12,6 +12,7 @@ module Checkpoint
     end
 
     def resolve(action)
+      return [action] if action.is_a?(Credential)
       permissions_for(action) + roles_granting(action)
     end
 

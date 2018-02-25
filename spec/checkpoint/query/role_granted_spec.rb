@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-require 'checkpoint/permission_check'
+require 'checkpoint/query/role_granted'
 
-RSpec.describe Checkpoint::PermissionCheck do
+RSpec.describe Checkpoint::Query::RoleGranted do
   let(:user)   { double('user') }
-  let(:action) { :action }
+  let(:role)   { :role }
   let(:target) { double('target') }
 
-  subject(:check) { described_class.new(user, action, target) }
+  subject(:check) { described_class.new(user, role, target) }
 
   it 'returns the user' do
     expect(check.user).to eq user
   end
 
-  it 'returns the action' do
-    expect(check.action).to eq action
+  it 'returns the role' do
+    expect(check.role).to eq role
   end
 
   it 'returns the target' do
@@ -22,28 +22,28 @@ RSpec.describe Checkpoint::PermissionCheck do
   end
 
   it 'rejects by default' do
-    expect(check.satisfied?).to be false
+    expect(check.true?).to be false
   end
 
   context 'when there is no matching permit' do
     let(:authority) { double('authority', permits?: false) }
     subject(:check) do
-      described_class.new(user, action, target, authority: authority)
+      described_class.new(user, role, target, authority: authority)
     end
 
-    it 'is not satisifed?' do
-      expect(check.satisfied?).to be false
+    it 'is not true?' do
+      expect(check.true?).to be false
     end
   end
 
   context 'when there is a matching permit' do
     let(:authority) { double('authority', permits?: true) }
     subject(:check) do
-      described_class.new(user, action, target, authority: authority)
+      described_class.new(user, role, target, authority: authority)
     end
 
-    it 'is satisfied?' do
-      expect(check.satisfied?).to be true
+    it 'is true?' do
+      expect(check.true?).to be true
     end
   end
 end

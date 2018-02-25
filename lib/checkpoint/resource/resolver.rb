@@ -12,6 +12,7 @@ module Checkpoint
   # mechanism to mirror the {PermissionMapper}.
   class ResourceResolver
     def resolve(target)
+      return [target] if target.is_a?(Resource)
       [Resource.from(target), Resource.wildcard_from(target)]
     end
   end
