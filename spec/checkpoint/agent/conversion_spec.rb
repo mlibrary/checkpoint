@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'checkpoint/agent_conversion.rb'
+require 'checkpoint/agent/conversion'
 
 RSpec.describe Checkpoint::Agent::Conversion do
   it 'can be used as an instance' do
@@ -19,15 +19,15 @@ RSpec.describe Checkpoint::Agent::Conversion do
     let(:user)      { double('user', class: 'User', id: 'id') }
     subject(:agent) { convert(user) }
 
-    it 'resolves to an Agent' do
+    it 'converts to an Agent' do
       expect(agent).to be_a Checkpoint::Agent
     end
 
-    it 'resolves with the user type' do
+    it 'converts with the user type' do
       expect(agent.type).to eq 'User'
     end
 
-    it "resolves with the id" do
+    it "converts with the id" do
       expect(user).to receive(:id)
       expect(agent.id).to eq 'id'
     end
@@ -76,8 +76,8 @@ RSpec.describe Checkpoint::Agent::Conversion do
     let(:agent) { build('user', 'id') }
 
     it 'lets the actor convert itself to an agent' do
-      agent = convert(user)
-      expect(agent).to eq agent
+      converted = convert(user)
+      expect(converted).to eq agent
     end
 
     it 'does not call #agent_type' do

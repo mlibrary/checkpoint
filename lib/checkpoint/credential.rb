@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'checkpoint/credential/resolver'
+require 'checkpoint/permission_mapper'
+
 module Checkpoint
   # A Credential is the permission to take a particular action, or any
   # instrument that can represent multiple permissions, such as a role or
@@ -24,8 +27,8 @@ module Checkpoint
     #   credential. For example, this might be an action to be taken or the ID
     #   of a role.
     def initialize(type, id)
-      @type = type
-      @id = id
+      @type = type.to_s
+      @id = id.to_s
     end
 
     # @return [String] a token suitable for granting or matching this credential
@@ -43,5 +46,13 @@ module Checkpoint
     def to_s
       token
     end
+
+    # Compare with another Credential for equality. Consider them to represent
+    # the same credential if `other` is a credential, has the same type, and same id.
+    def eql?(other)
+      other.is_a?(Credential) && type == other.type && id == other.id
+    end
+
+    alias == eql?
   end
 end

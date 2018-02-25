@@ -19,12 +19,12 @@ module Checkpoint
 
     def permissions_for(action)
       perms = permission_mapper.permissions_for(action)
-      perms.map { |p| "permission:#{p}" }
+      perms.map { |perm| Credential.new('permission', perm) }
     end
 
     def roles_granting(action)
       roles = permission_mapper.roles_granting(action)
-      roles.map { |r| "role:#{r}" }
+      roles.map { |role| Credential.new('role', role) }
     end
 
     attr_reader :permission_mapper

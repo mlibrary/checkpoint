@@ -3,8 +3,9 @@
 module Checkpoint
   class Agent
     # Default conversion from an actor to an {Agent}.
+    #
     # If the actor implements #to_agent, we will delegate to it. Otherwise,
-    # we check if the actor implements #agent_type and #agent_id; if so, we
+    # we check if the actor implements #agent_type or #agent_id; if so, we
     # use them as the type and id, respectively. If not, we use the actor's
     # class name as the type and call #id for the id. If the actor does not
     # implement any of the ways to supply an #id, an error will be raised.
@@ -16,7 +17,7 @@ module Checkpoint
         @actor = actor
       end
 
-      # Convenience syntax to avoid .new(..).call.
+      # Convenience syntax to avoid .new(actor).call.
       # Example: (from within the Agent class) Conversion[actor]
       def self.[](actor)
         new(actor).call
@@ -24,6 +25,7 @@ module Checkpoint
 
       # Convert the bound actor to an agent. If the actor implements #to_agent,
       # call it. Otherwise, use the defaults as implemented by {#type} and {#id}.
+      #
       # @return the actor converted to an Agent
       def call
         if actor.respond_to?(:to_agent)

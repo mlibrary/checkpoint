@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'agent_conversion'
+require 'checkpoint/agent/resolver'
+require 'checkpoint/agent/conversion'
 
 module Checkpoint
   # An Agent is an any person or entity that might be granted various

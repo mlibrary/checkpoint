@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'checkpoint/resource/resolver'
+require 'checkpoint/resource/conversion'
+
 module Checkpoint
   # A Resource is any application object that should be considered for
   # restricted access.
@@ -48,6 +51,24 @@ module Checkpoint
     def initialize(type, id)
       @type = type.to_s
       @id = id.to_s
+    end
+
+    # Conversion for single entities
+    def self.conversion
+      Conversion
+    end
+
+    # Conversion for all entities of a type
+    def self.wildcard_conversion
+      WildcardConversion
+    end
+
+    def self.from(entity)
+      conversion[entity]
+    end
+
+    def self.wildcard_from(entity)
+      wildcard_conversion[entity]
     end
 
     # Get the special "all" Resource. This is a singleton that represents all

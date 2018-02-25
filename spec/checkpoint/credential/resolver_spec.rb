@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'checkpoint/credential_resolver'
+require 'checkpoint/credential/resolver'
 
 class FakeRoles
   def permissions_for(action)
@@ -33,35 +33,39 @@ RSpec.describe Checkpoint::CredentialResolver do
     subject(:resolver) { described_class.new(permission_mapper: mapper) }
 
     context "when resolving edit" do
-      subject { resolver.resolve(:edit) }
+      let(:edit) { build_permission(:edit) }
+      subject    { resolver.resolve(:edit) }
 
       it "includes 'permission:edit'" do
-        is_expected.to include('permission:edit')
+        is_expected.to include(edit)
       end
 
       it "does not include any roles" do
-        is_expected.to eq(['permission:edit'])
+        is_expected.to contain_exactly(edit)
       end
     end
 
     context "when resolving read" do
-      subject { resolver.resolve(:read) }
+      let(:read) { build_permission(:read) }
+      subject    { resolver.resolve(:read) }
 
       it "includes 'permission:read'" do
-        is_expected.to include('permission:read')
+        is_expected.to include(read)
       end
 
       it "does not include any roles" do
-        is_expected.to eq(['permission:read'])
+        is_expected.to contain_exactly(read)
       end
     end
 
     it "accepts string actions" do
-      expect(resolver.resolve('read')).to include('permission:read')
+      read = build_permission(:read)
+      expect(resolver.resolve('read')).to include(read)
     end
 
     it "accepts symbol actions" do
-      expect(resolver.resolve(:read)).to include('permission:read')
+      read = build_permission(:read)
+      expect(resolver.resolve(:read)).to include(read)
     end
   end
 
@@ -70,31 +74,44 @@ RSpec.describe Checkpoint::CredentialResolver do
     let(:resolver) { described_class.new(permission_mapper: mapper) }
 
     context "when resolving edit" do
-      subject { resolver.resolve(:edit) }
+      subject(:credentials) { resolver.resolve(:edit) }
 
       it "includes 'permission:edit'" do
-        is_expected.to include('permission:edit')
+        edit = build_permission(:edit)
+        expect(credentials).to include(edit)
       end
 
       it "includes 'role:editor'" do
-        is_expected.to include('role:editor')
+        editor = build_role(:editor)
+        expect(credentials).to include(editor)
       end
 
       it "includes 'role:admin'" do
-        is_expected.to include('role:admin')
+        admin = build_role(:admin)
+        expect(credentials).to include(admin)
       end
     end
 
     context "when resolving destroy" do
-      subject { resolver.resolve(:destroy) }
+      subject(:credentials) { resolver.resolve(:destroy) }
 
       it "includes ':edit'" do
-        is_expected.to include('permission:destroy')
+        destroy = build_permission(:destroy)
+        expect(credentials).to include(destroy)
       end
 
       it "does not include any roles" do
-        is_expected.to eq(['permission:destroy'])
+        destroy = build_permission(:destroy)
+        expect(credentials).to contain_exactly(destroy)
       end
     end
+  end
+
+  def build_permission(permission)
+    Checkpoint::Credential.new('permission', permission)
+  end
+
+  def build_role(role)
+    Checkpoint::Credential.new('role', role)
   end
 end

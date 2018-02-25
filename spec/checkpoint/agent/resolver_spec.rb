@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'checkpoint/agent'
-require 'checkpoint/agent_resolver'
+# require 'checkpoint/agent'
+# require 'checkpoint/agent/resolver'
 
 RSpec.describe Checkpoint::AgentResolver do
   let(:user)       { double('user', id: 'id') }

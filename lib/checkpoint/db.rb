@@ -3,6 +3,9 @@
 module Checkpoint
   # Module for everything related to the Checkpoint database.
   module DB
+    # Any error with the database that Checkpoint itself detects but cannot handle.
+    class DatabaseError < StandardError; end
+
     LOAD_ERROR = <<~MSG
       Error loading Checkpoint database models.
       Verify connection information and that the database is migrated.
@@ -28,8 +31,8 @@ module Checkpoint
         @db = db || Sequel.connect(opts || url)
         begin
           require_relative 'db/permit'
-        rescue Sequel::DatabaseError => e
-          raise StandardError, LOAD_ERROR + "\n" + e.message
+        rescue Sequel::DatabaseError, NoMethodError => e
+          raise DatabaseError, LOAD_ERROR + "\n" + e.message
         end
         @db
       end
@@ -37,7 +40,7 @@ module Checkpoint
       # The Checkpoint database
       # @return [Sequel::Database] The connected database; be sure to call initialize! first.
       def db
-        raise StandardError, CONNECTION_ERROR if @db.nil?
+        raise DatabaseError, CONNECTION_ERROR if @db.nil?
         @db
       end
     end

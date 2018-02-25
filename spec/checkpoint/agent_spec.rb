@@ -23,16 +23,16 @@ module Checkpoint
     end
 
     context 'when given non-string inputs' do
-      subject(:resource) { described_class.new(Object, 1) }
+      subject(:agent) { described_class.new(Object, 1) }
 
       it 'converts the type to a string' do
-        expect(resource.type).to be_a String
-        expect(resource.type).to eq('Object')
+        expect(agent.type).to be_a String
+        expect(agent.type).to eq('Object')
       end
 
       it 'converts the id to a string' do
-        expect(resource.id).to be_a String
-        expect(resource.id).to eq('1')
+        expect(agent.id).to be_a String
+        expect(agent.id).to eq('1')
       end
     end
 
@@ -51,19 +51,19 @@ module Checkpoint
     end
 
     describe "#eql?" do
-      it 'considers resources as the same if type and id match' do
+      it 'considers agents as the same if type and id match' do
         agent1 = described_class.new('some-type', 'some-id')
         agent2 = described_class.new('some-type', 'some-id')
         expect(agent1).to eql(agent2)
       end
 
-      it 'considers resources as different if type does not match' do
+      it 'considers agents as different if type does not match' do
         agent1 = described_class.new('some-type', 'some-id')
         agent2 = described_class.new('other-type', 'some-id')
         expect(agent1).not_to eql(agent2)
       end
 
-      it 'considers resources as different if id does not match' do
+      it 'considers agents as different if id does not match' do
         agent1 = described_class.new('some-type', 'some-id')
         agent2 = described_class.new('some-type', 'other-id')
         expect(agent1).not_to eql(agent2)
@@ -71,19 +71,19 @@ module Checkpoint
     end
 
     describe "#==" do
-      it 'considers resources as the same if type and id match' do
+      it 'considers agents as the same if type and id match' do
         agent1 = described_class.new('some-type', 'some-id')
         agent2 = described_class.new('some-type', 'some-id')
         expect(agent1).to eq(agent2)
       end
 
-      it 'considers resources as different if type does not match' do
+      it 'considers agents as different if type does not match' do
         agent1 = described_class.new('some-type', 'some-id')
         agent2 = described_class.new('other-type', 'some-id')
         expect(agent1).not_to eq(agent2)
       end
 
-      it 'considers resources as different if id does not match' do
+      it 'considers agents as different if id does not match' do
         agent1 = described_class.new('some-type', 'some-id')
         agent2 = described_class.new('some-type', 'other-id')
         expect(agent1).not_to eq(agent2)

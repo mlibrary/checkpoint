@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
-require "coveralls"
-Coveralls.wear! do
-  add_filter 'spec/sequel_helper.rb'
+if ENV['COVERAGE'] || ENV['TRAVIS']
+  require "coveralls"
+  Coveralls.wear! do
+    add_filter 'spec/sequel_helper.rb'
+  end
 end
 
 require "checkpoint"

@@ -40,7 +40,7 @@ RSpec.describe Checkpoint::DB do
     end
 
     it 'raises a connection error on a bad URL' do
-      expect { Checkpoint::DB.initialize!(url: 'badurl') }.to raise_error
+      expect { Checkpoint::DB.initialize!(url: 'badurl') }.to raise_error StandardError
     end
 
     describe 'migration check' do
@@ -59,7 +59,7 @@ RSpec.describe Checkpoint::DB do
           Sequel::Model.db = db
           unload_permit
           Checkpoint::DB.initialize!(db: db)
-        end.to raise_error
+        end.to raise_error Checkpoint::DB::DatabaseError
       end
 
       after do

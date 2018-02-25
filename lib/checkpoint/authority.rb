@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'checkpoint/agent_resolver'
-require 'checkpoint/credential_resolver'
-require 'checkpoint/resource_resolver'
+require 'checkpoint/agent/resolver'
+require 'checkpoint/credential/resolver'
+require 'checkpoint/resource/resolver'
 require 'checkpoint/permits'
 
 module Checkpoint
