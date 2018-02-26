@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'checkpoint/credential'
+require 'checkpoint/credential/token'
 
 module Checkpoint
   RSpec.describe Credential do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'checkpoint/resource'
+require 'checkpoint/resource/token'
 
 module Checkpoint
   RSpec.describe Resource do

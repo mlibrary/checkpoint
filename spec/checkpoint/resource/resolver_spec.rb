@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'checkpoint/resource'
 require 'checkpoint/resource/resolver'
 
 RSpec.describe Checkpoint::ResourceResolver do

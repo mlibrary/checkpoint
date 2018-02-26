@@ -11,8 +11,8 @@ module Checkpoint
   # Nothing here for now...
 end
 
-require 'checkpoint/agent'
-require 'checkpoint/credential'
-require 'checkpoint/resource'
+require 'checkpoint/agent/token'
+require 'checkpoint/credential/token'
+require 'checkpoint/resource/token'
 require 'checkpoint/authority'
 require 'checkpoint/query'

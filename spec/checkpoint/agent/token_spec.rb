@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'checkpoint/agent'
+require 'checkpoint/agent/token'
 
 module Checkpoint
   RSpec.describe Agent do
