@@ -10,17 +10,9 @@ RSpec.describe Checkpoint::ResourceResolver do
     subject(:resources) { resolver.resolve(listing) }
 
     it 'resolves to only the entity and type resources' do
-      entity = build('listing', '12')
-      type   = build('listing', all_ids)
-      expect(resources).to contain_exactly(entity, type)
+      entity   = Checkpoint::Resource.new(listing)
+      wildcard = Checkpoint::Resource::AllOfType.new(listing)
+      expect(resources).to contain_exactly(entity, wildcard)
     end
-  end
-
-  def build(type, id)
-    Checkpoint::Resource.new(type, id)
-  end
-
-  def all_ids
-    Checkpoint::Resource::ALL
   end
 end

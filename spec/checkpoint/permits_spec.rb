@@ -62,6 +62,6 @@ RSpec.describe Checkpoint::Permits, DB: true do
   end
 
   def resource(type: 'resource', id: 1)
-    Checkpoint::Resource.new(type, id)
+    Checkpoint::Resource::Token.new(type, id)
   end
 end

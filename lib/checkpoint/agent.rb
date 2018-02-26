@@ -37,24 +37,57 @@ module Checkpoint
       end
     end
 
+    # Get the captive actor's type.
+    #
+    # If the entity implements `#to_agent`, we will call that and use the
+    # returned agent's type. If not, but it implements `#agent_type`, we
+    # will use that. Otherwise, we use the actors's class name.
+    #
+    # @return [String] the name of the actor's type after calling `#to_s` on it.
     def type
       if actor.respond_to?(:agent_type)
         actor.agent_type
       else
-        actor.class.to_s
-      end
+        actor.class
+      end.to_s
     end
 
+    # Get the captive actor's id.
+    #
+    # If the entity implements `#to_agent`, we will call that and use the
+    # returned agent's id. If not, but it implements `#agent_id`, we
+    # will use that. Otherwise, we call `#id`. If the the actor does not
+    # implement any of these methods, we raise a {NoIdentifierError}.
+    #
+    # @return [String] the name of the actor's type after calling `#to_s` on it.
     def id
       if actor.respond_to?(:agent_id)
         actor.agent_id
-      else
+      elsif actor.respond_to?(:id)
         actor.id
-      end
+      else
+        raise NoIdentifierError, "No usable identifier on actor of type: #{actor.class}"
+      end.to_s
     end
 
     def token
       @token ||= Token.new(type, id)
+    end
+
+    # Check whether two Agents refer to the same concrete actor.
+    # @param other [Agent] Another Agent to compare with
+    # @return [Boolean] true when the other Agent's actor is the same as
+    #   determined by comparing them with `#eql?`.
+    def eql?(other)
+      other.is_a?(Agent) && actor.eql?(other.actor)
+    end
+
+    # Check whether two Agents refer to the same concrete actor.
+    # @param other [Agent] Another Agent to compare with
+    # @return [Boolean] true when the other Agent's actor is the same as
+    #   determined by comparing them with `==`.
+    def ==(other)
+      other.is_a?(Agent) && actor == other.actor
     end
   end
 end

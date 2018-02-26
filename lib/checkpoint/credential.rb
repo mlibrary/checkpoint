@@ -6,4 +6,3 @@ module Checkpoint
   class Credential
   end
 end
-

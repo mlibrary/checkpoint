@@ -3,7 +3,7 @@
 require 'checkpoint/resource/token'
 
 module Checkpoint
-  RSpec.describe Resource do
+  RSpec.describe Resource::Token do
     subject(:resource) { described_class.new('a_type', 'an_id') }
 
     it 'returns its type' do

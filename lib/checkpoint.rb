@@ -8,7 +8,9 @@ require 'ettin'
 
 # All of the Checkpoint components are contained within this top-level module.
 module Checkpoint
-  # Nothing here for now...
+  # An error raised if there is no callable identifier on an entity when
+  # attempting to convert it to a resource.
+  class NoIdentifierError < StandardError; end
 end
 
 require 'checkpoint/agent'

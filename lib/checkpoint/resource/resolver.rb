@@ -13,7 +13,7 @@ module Checkpoint
   class ResourceResolver
     def resolve(target)
       return [target] if target.is_a?(Resource)
-      [Resource.from(target), Resource.wildcard_from(target)]
+      [Resource.from(target), Resource::AllOfType.from(target)]
     end
   end
 end
