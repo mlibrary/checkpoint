@@ -1,0 +1,116 @@
+# frozen_string_literal: true
+
+require 'checkpoint/agent'
+
+RSpec.describe Checkpoint::Agent do
+  describe '#new' do
+    it 'stores the actor' do
+      user  = double('user', id: 'id')
+      agent = described_class.new(user)
+      expect(agent.actor).to eq user
+    end
+  end
+
+  describe '#token' do
+    let(:user)      { double('user', agent_type: 'user', agent_id: 'id') }
+    subject(:token) { described_class.new(user).token }
+
+    it 'gives a token' do
+      expect(token).to be_an described_class::Token
+    end
+
+    it 'has the correct type' do
+      expect(token.type).to eq('user')
+    end
+
+    it 'has the correct id' do
+      expect(token.id).to eq('id')
+    end
+  end
+
+  describe '::from' do
+    it 'converts an actor to an agent' do
+      user = double('user', id: 'id')
+      agent = described_class.from(user)
+      expect(agent).to be_a Checkpoint::Agent
+    end
+
+    context 'when the actor responds to #to_agent' do
+      let(:user)  { double('user', to_agent: agent) }
+      let(:agent) { double('agent') }
+
+      it 'lets the actor convert itself to an agent' do
+        converted = described_class.from(user)
+        expect(converted).to eq agent
+      end
+
+      it 'does not call #agent_type' do
+        expect(user).not_to receive(:agent_type)
+        described_class.from(user)
+      end
+
+      it 'does not call #agent_id' do
+        expect(user).not_to receive(:agent_id)
+        described_class.from(user)
+      end
+
+      it 'does not call #id' do
+        expect(user).not_to receive(:id)
+        described_class.from(user)
+      end
+    end
+  end
+
+  context 'with a generic User object' do
+    let(:user)      { double('user', class: 'User', id: 'id') }
+    subject(:agent) { described_class.new(user) }
+
+    it 'reports the type as User' do
+      expect(agent.type).to eq 'User'
+    end
+
+    it 'uses the #id property' do
+      expect(user).to receive(:id)
+      expect(agent.id).to eq 'id'
+    end
+  end
+
+  context 'when the actor responds to #agent_id' do
+    let(:user)  { double('user', agent_id: 'id') }
+    let(:agent) { described_class.new(user) }
+
+    it 'calls #agent_id' do
+      expect(user).to receive(:agent_id)
+      agent.id
+    end
+
+    it 'uses #agent_id' do
+      expect(agent.id).to eq 'id'
+    end
+
+    it 'does not call #id' do
+      expect(user).not_to receive(:id)
+      agent.id
+    end
+  end
+
+  context 'when the actor responds to #agent_type' do
+    let(:user)  { double('user', agent_type: 'user', id: 'id') }
+    let(:agent) { described_class.new(user) }
+
+    it 'uses the #agent_type' do
+      expect(agent.type).to eq 'user'
+    end
+
+    it 'calls #agent_type' do
+      expect(user).to receive(:agent_type)
+      agent.type
+    end
+
+    it 'does not call #type' do
+      expect(user).not_to receive(:type)
+      agent.type
+    end
+  end
+end
+

@@ -54,7 +54,7 @@ RSpec.describe Checkpoint::Permits, DB: true do
   end
 
   def agent(type: 'user', id: 'userid')
-    Checkpoint::Agent.new(type, id)
+    Checkpoint::Agent::Token.new(type, id)
   end
 
   def credential(type: 'permission', id: 'edit')

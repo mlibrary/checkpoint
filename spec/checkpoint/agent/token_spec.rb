@@ -3,7 +3,7 @@
 require 'checkpoint/agent/token'
 
 module Checkpoint
-  RSpec.describe Agent do
+  RSpec.describe Agent::Token do
     subject(:agent) { described_class.new('a_type', 'an_id') }
 
     it 'returns its type' do
@@ -12,14 +12,6 @@ module Checkpoint
 
     it 'returns its ID' do
       expect(agent.id).to eq('an_id')
-    end
-
-    describe '::from' do
-      it 'converts an actor to an agent' do
-        user = double('user', id: 'id')
-        agent = described_class.from(user)
-        expect(agent).to be_an Agent
-      end
     end
 
     context 'when given non-string inputs' do
