@@ -19,10 +19,14 @@ module Checkpoint
     attr_reader :type, :name, :token
     # def initialize(name: nil)
     def initialize(type = :FIXME, id = :FIXME, name: nil)
-      @token = Token.new(type, name)
       @name = name.to_s
       @type = 'credential'
     end
+
+    def token
+      @token ||= Token.new(type, name)
+    end
+
     def eql?(other)
       type == other.type && name == other.name
     end
