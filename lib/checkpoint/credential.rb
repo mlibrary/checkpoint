@@ -16,10 +16,12 @@ module Checkpoint
   # be likened to an instance of that class, bound to a given agent and
   # possibly bound to a {Resource}.
   class Credential
+    attr_reader :name, :token
     extend Forwardable
-    def_delegators :@token, :type, :id, :token
-    def initialize(type,id)
-      @token = Token.new(type, id)
+    def_delegators :@token, :type, :id
+    def initialize(type,id, name: nil)
+      @token = Token.new(type, name || id)
+      @name = name.to_s
     end
     def _token
       @token

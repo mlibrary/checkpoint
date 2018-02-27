@@ -38,7 +38,7 @@ module Checkpoint
       # Compare with another Credential for equality. Consider them to represent
       # the same credential if `other` is a credential, has the same type, and same id.
       def eql?(other)
-        other.is_a?(Credential::Token) && type == other.type && id == other.id
+        other.is_a?(Token) && type == other.type && id == other.id
       end
 
       alias == eql?
