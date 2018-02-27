@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# require 'checkpoint/agent'
-# require 'checkpoint/agent/resolver'
+require 'checkpoint/agent/resolver'
 
-RSpec.describe Checkpoint::AgentResolver do
+RSpec.describe Checkpoint::Agent::Resolver do
   let(:user)       { double('user', id: 'id') }
   let(:resolver)   { described_class.new }
   subject(:agents) { resolver.resolve(user) }

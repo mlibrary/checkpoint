@@ -27,7 +27,7 @@ class EmptyRoles
   end
 end
 
-RSpec.describe Checkpoint::CredentialResolver do
+RSpec.describe Checkpoint::Credential::Resolver do
   context "when no role permissions are defined" do
     let(:mapper) { EmptyRoles.new }
     subject(:resolver) { described_class.new(permission_mapper: mapper) }

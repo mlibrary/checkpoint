@@ -11,9 +11,9 @@ module Checkpoint
   # action to be taken.
   class Authority
     def initialize(
-      agent_resolver: AgentResolver.new,
-      credential_resolver: CredentialResolver.new,
-      resource_resolver: ResourceResolver.new,
+      agent_resolver: Agent::Resolver.new,
+      credential_resolver: Credential::Resolver.new,
+      resource_resolver: Resource::Resolver.new,
       permits: Permits.new)
 
       @agent_resolver      = agent_resolver

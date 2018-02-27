@@ -2,7 +2,7 @@
 
 require 'checkpoint/resource/resolver'
 
-RSpec.describe Checkpoint::ResourceResolver do
+RSpec.describe Checkpoint::Resource::Resolver do
   let(:resolver) { described_class.new }
 
   context 'with an entity' do

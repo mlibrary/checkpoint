@@ -22,31 +22,31 @@ RSpec.describe Checkpoint::Authority do
   let(:action)  { :read }
   let(:target)  { listing }
 
-  let(:agent_resolver) { instance_double('AgentResolver', resolve: []) }
-  let(:guest_resolver) { instance_double('AgentResolver', resolve: ['account-type:guest']) }
+  let(:agent_resolver) { instance_double('Agent::Resolver', resolve: []) }
+  let(:guest_resolver) { instance_double('Agent::Resolver', resolve: ['account-type:guest']) }
 
   let(:anna_resolver) do
     instance_double(
-      'AgentResolver',
+      'Agent::Resolver',
       resolve: ['user:anna', 'account-type:umich', 'affiliation:lib-staff']
     )
   end
 
   let(:katy_resolver) do
     instance_double(
-      'AgentResolver',
+      'Agent::Resolver',
       resolve: ['user:katy', 'account-type:umich', 'affiliation:faculty']
     )
   end
 
-  let(:credential_resolver) { instance_double('CredentialResolver', resolve: []) }
-  let(:read_resolver)       { instance_double('CredentialResolver', resolve: ['permission:read']) }
-  let(:edit_resolver)       { instance_double('CredentialResolver', resolve: ['permission:edit']) }
+  let(:credential_resolver) { instance_double('Credential::Resolver', resolve: []) }
+  let(:read_resolver)       { instance_double('Credential::Resolver', resolve: ['permission:read']) }
+  let(:edit_resolver)       { instance_double('Credential::Resolver', resolve: ['permission:edit']) }
 
-  let(:resource_resolver) { instance_double('ResourceResolver', resolve: []) }
+  let(:resource_resolver) { instance_double('Resource::Resolver', resolve: []) }
 
   let(:listing_resolver) do
-    instance_double('ResourceResolver', resolve: ['listing:17', 'type:listing'])
+    instance_double('Resource::Resolver', resolve: ['listing:17', 'type:listing'])
   end
 
   let(:authority) do
