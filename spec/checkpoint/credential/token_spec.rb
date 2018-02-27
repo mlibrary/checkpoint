@@ -3,7 +3,7 @@
 require 'checkpoint/credential/token'
 
 module Checkpoint
-  RSpec.describe Credential do
+  RSpec.describe Credential::Token do
     subject(:credential) { described_class.new('a_type', 'an_id') }
 
     it 'returns its type' do
