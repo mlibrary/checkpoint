@@ -17,9 +17,8 @@ module Checkpoint
   # possibly bound to a {Resource}.
   class Credential
     attr_reader :type, :name, :token
-    # def initialize(name: nil)
-    def initialize(type = :FIXME, id = :FIXME, name: nil)
-      @name = name.to_s
+    def initialize(_name = nil, name: :fixme)
+      @name = (_name || name).to_s
       @type = 'credential'
     end
 
