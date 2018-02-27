@@ -6,12 +6,12 @@ RSpec.describe Checkpoint::Credential::Permission do
   describe '#new' do
     it 'takes and stores a name' do
       permission = described_class.new(name: 'name')
-      expect(permission.name).to eq('name')
+      expect(permission.name).to eq 'name'
     end
   end
 
   it 'has the permission type' do
     permission = described_class.new(name: 'name')
-    expect(permission.type).to eq('permission')
+    expect(permission.type).to eq 'permission'
   end
 end
