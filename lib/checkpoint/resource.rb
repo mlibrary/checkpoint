@@ -2,6 +2,9 @@
 
 require 'checkpoint/resource/token'
 require 'checkpoint/resource/all_of_type'
+require 'checkpoint/resource/all_of_any_type'
+require 'checkpoint/resource/any_entity'
+require 'checkpoint/resource/any_entity_of_type'
 
 module Checkpoint
   # A Resource is any application object that should be considered for
@@ -56,6 +59,14 @@ module Checkpoint
       end
     end
 
+    # Covenience factory method to get a Resource that will match all entities
+    # of any type.
+    #
+    # @return [AllOfAnyType] a wildcard resource instance
+    def self.all
+      AllOfAnyType.new
+    end
+
     # Get the resource type.
     #
     # Note that this is not necessarily a class/model type name. It can be
@@ -105,7 +116,7 @@ module Checkpoint
     # @see Resource::AllOfType
     # @return [Resource] A Resource of the same type, but for all members
     def all_of_type
-      Resource::AllOfType.new(entity)
+      Resource::AllOfType.new(type)
     end
 
     # Check whether two Resources refer to the same entity.

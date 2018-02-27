@@ -5,7 +5,7 @@ require 'checkpoint/resource'
 FakeEntity = Struct.new(:id)
 
 RSpec.describe Checkpoint::Resource do
-  describe '#new' do
+  describe '#initialize' do
     it 'stores the entity' do
       entity   = double('entity', id: 'id')
       resource = described_class.new(entity)
@@ -69,6 +69,22 @@ RSpec.describe Checkpoint::Resource do
         expect(entity).not_to receive(:id)
         resource.id
       end
+    end
+  end
+
+  describe '.all' do
+    let(:resource) { described_class.all }
+
+    it 'gives a Resource' do
+      expect(resource).to be_a Checkpoint::Resource
+    end
+
+    it 'gives the Resource with the special ALL type' do
+      expect(resource.type).to eq Checkpoint::Resource::ALL
+    end
+
+    it 'gives the Resource with the special ALL id' do
+      expect(resource.id).to eq Checkpoint::Resource::ALL
     end
   end
 
