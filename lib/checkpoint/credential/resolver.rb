@@ -20,7 +20,7 @@ module Checkpoint
 
     def permissions_for(action)
       perms = permission_mapper.permissions_for(action)
-      perms.map { |perm| Credential.new('permission', perm) }
+      perms.map { |perm| Credential::Permission.new(perm) }
     end
 
     def roles_granting(action)
