@@ -17,8 +17,8 @@ module Checkpoint
   # possibly bound to a {Resource}.
   class Credential
     attr_reader :type, :name, :token
-    def initialize(_name = nil, name: :fixme)
-      @name = (_name || name).to_s
+    def initialize(name = nil)
+      @name = name.to_s
       @type = 'credential'
     end
 
@@ -29,6 +29,7 @@ module Checkpoint
     def eql?(other)
       type == other.type && name == other.name
     end
+
     def ==(other)
       type == other.type && name == other.name
     end
