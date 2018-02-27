@@ -19,18 +19,16 @@ module Checkpoint
     attr_reader :name, :token
     extend Forwardable
     def_delegators :@token, :type, :id
-    def initialize(type,id, name: nil)
-      @token = Token.new(type, name || id)
+    def initialize(name: nil)
+    # def initialize(type = :FIXME, id = :FIXME, name: nil)
+      @token = Token.new(type, name)
       @name = name.to_s
     end
-    def _token
-      @token
-    end
     def eql?(other)
-      _token.eql?(other._token)
+      token.eql?(other.token)
     end
     def ==(other)
-      _token == other._token
+      token == other.token
     end
   end
 end
