@@ -42,6 +42,21 @@ module Checkpoint
       end
     end
 
+    describe '#sql_literal' do
+      it 'gives the quoted token string' do
+        dataset = double('sequel dataset')
+        literal = agent.sql_literal(dataset)
+        expect(literal).to eq "'#{agent.token}'"
+      end
+
+      it 'strips any single quotes in the token' do
+        dataset = double('sequel dataset')
+        agent   = described_class.new("'type", "'id")
+        literal = agent.sql_literal(dataset)
+        expect(literal).to eq "'type:id'"
+      end
+    end
+
     describe "#eql?" do
       it 'considers agents as the same if type and id match' do
         agent1 = described_class.new('some-type', 'some-id')

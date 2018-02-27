@@ -59,6 +59,21 @@ module Checkpoint
       end
     end
 
+    describe '#sql_literal' do
+      it 'gives the quoted token string' do
+        dataset = double('sequel dataset')
+        literal = resource.sql_literal(dataset)
+        expect(literal).to eq "'#{resource.token}'"
+      end
+
+      it 'strips any single quotes in the token' do
+        dataset  = double('sequel dataset')
+        resource = described_class.new("'type", "'id")
+        literal  = resource.sql_literal(dataset)
+        expect(literal).to eq "'type:id'"
+      end
+    end
+
     describe "#eql?" do
       it 'considers resources as the same if type and id match' do
         res1 = described_class.new('some-type', 'some-id')

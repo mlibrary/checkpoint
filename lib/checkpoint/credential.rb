@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'checkpoint/credential/resolver'
+require 'checkpoint/credential/role'
+require 'checkpoint/credential/permission'
 require 'checkpoint/credential/token'
 require 'checkpoint/permission_mapper'
 

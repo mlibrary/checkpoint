@@ -42,6 +42,21 @@ module Checkpoint
       end
     end
 
+    describe '#sql_literal' do
+      it 'gives the quoted token string' do
+        dataset = double('sequel dataset')
+        literal = credential.sql_literal(dataset)
+        expect(literal).to eq "'#{credential.token}'"
+      end
+
+      it 'strips any single quotes in the token' do
+        dataset    = double('sequel dataset')
+        credential = described_class.new("'type", "'id")
+        literal    = credential.sql_literal(dataset)
+        expect(literal).to eq "'type:id'"
+      end
+    end
+
     describe "#eql?" do
       it 'considers credentials as the same if type and id match' do
         credential1 = described_class.new('some-type', 'some-id')

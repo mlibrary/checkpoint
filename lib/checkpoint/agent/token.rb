@@ -40,6 +40,12 @@ module Checkpoint
         token
       end
 
+      # Return a version of this token for use in an SQL query
+      # @return [String] the token string, with any single quotes removed, then quoted
+      def sql_literal(_dataset)
+        "'" + token.delete("'") + "'"
+      end
+
       # Compare with another Agent for equality. Consider them to represent
       # the same resource if `other` is an Agent, has the same type, and same id.
       def eql?(other)
