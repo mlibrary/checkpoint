@@ -20,6 +20,26 @@ RSpec.describe Checkpoint::Credential do
     end
   end
 
+  describe '#granted_by' do
+    it 'returns the credential itself in an array' do
+      credential = described_class.new('name')
+      expect(credential.granted_by).to eq([credential])
+    end
+  end
+
+  describe '#token' do
+    let(:credential) { described_class.new('name') }
+    let(:token)      { credential.token }
+
+    it 'gives a Token' do
+      expect(token).to be_a Checkpoint::Credential::Token
+    end
+
+    it 'has name as the id' do
+      expect(token.id).to eq 'name'
+    end
+  end
+
   describe '#eql?' do
     it 'gives true if the type and name match' do
       credential = described_class.new('name')
@@ -31,6 +51,20 @@ RSpec.describe Checkpoint::Credential do
       credential = described_class.new('name')
       other      = described_class.new('other')
       expect(credential).not_to eql(other)
+    end
+  end
+
+  describe '#==' do
+    it 'gives true if the type and name match' do
+      credential = described_class.new('name')
+      other      = described_class.new('name')
+      expect(credential).to eq(other)
+    end
+
+    it 'gives false if the name does not match' do
+      credential = described_class.new('name')
+      other      = described_class.new('other')
+      expect(credential).not_to eq(other)
     end
   end
 end

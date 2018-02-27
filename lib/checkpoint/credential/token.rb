@@ -2,6 +2,10 @@
 
 module Checkpoint
   class Credential
+    # A Credential::Token is an identifier object for a Credential. It includes
+    # a type and an identifier. A {Permit} can be granted for a Token. Concrete
+    # actions are resolved into a number of credentials, and those credentials'
+    # tokens will be checked for matching permits.
     class Token
       attr_reader :type, :id
 

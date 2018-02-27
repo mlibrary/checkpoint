@@ -107,6 +107,37 @@ RSpec.describe Checkpoint::CredentialResolver do
     end
   end
 
+  context 'when resolving a Permission object' do
+    let(:permission) { build_permission('name') }
+    let(:mapper)     { double('mapper') }
+    let(:resolver)   { described_class.new(permission_mapper: mapper) }
+
+    it 'calls granted_by' do
+      expect(permission).to receive(:granted_by)
+      resolver.resolve(permission)
+    end
+
+    it 'does not call permissions_for on the mapper' do
+      expect(mapper).not_to receive(:permissions_for)
+      resolver.resolve(permission)
+    end
+
+    it 'does not call roles_granting on the mapper' do
+      expect(mapper).not_to receive(:roles_granting)
+      resolver.resolve(permission)
+    end
+  end
+
+  context 'when resolving anything that implements #granted_by' do
+    let(:credential) { double('credential', granted_by: ['foo']) }
+    let(:resolver)   { described_class.new }
+
+    it 'calls granted_by' do
+      expect(credential).to receive(:granted_by)
+      resolver.resolve(credential)
+    end
+  end
+
   def build_permission(permission)
     Checkpoint::Credential::Permission.new(permission)
   end
