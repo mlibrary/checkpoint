@@ -36,18 +36,18 @@ module Checkpoint
     # types or all resources
     ALL = '(all)'
 
-    # Creates a converter for this entity. Prefer the class method {::[]}.
+    # Creates a Resource for this entity. Prefer the factory method {::from},
+    # which applies default conversion rules. This constructor does not
+    # consider whether the entity can covert itself with #to_resource.
     def initialize(entity)
       @entity = entity
     end
 
-    # Default conversion from an entity to a Resource.
+    # Default conversion from an entity to a Resource. Prefer this to creating
+    # new instances by hand.
     #
     # If the entity implements #to_resource, we will delegate to it. Otherwise,
-    # we check if the entity implements #resource_type or #resource_id; if so,
-    # we use them as the type and id, respectively. If not, we use the
-    # entity's class name as the type and call #id for the id. If the entity
-    # does not implement any of the ways to supply an #id, an error will be raised.
+    # we will return a Resource for this entity.
     def self.from(entity)
       if entity.respond_to?(:to_resource)
         entity.to_resource
@@ -56,29 +56,32 @@ module Checkpoint
       end
     end
 
-    # Get the captive entity's type.
+    # Get the resource type.
     #
-    # If the entity implements `#to_resource`, we will call that and use the
-    # returned resource's type. If not, but it implements `#resource_type`, we
-    # will use that. Otherwise, we use the entity's class name.
+    # Note that this is not necessarily a class/model type name. It can be
+    # whatever type name is most useful for building tokens and inspecting
+    # permits for this types. For example, there may be objects that have
+    # subtypes that are not modeled as objects, decorators, or collection
+    # objects (like a specialized type for the root of a tree) that should
+    # be treated as the element type.
+    #
+    # If the entity implements `#resource_type`, we will use that. Otherwise,
+    # we use the entity's class name.
     #
     # @return [String] the name of the entity's type after calling `#to_s` on it.
     def type
-      if entity.respond_to?(:to_resource)
-        entity.to_resource.type
-      elsif entity.respond_to?(:resource_type)
+      if entity.respond_to?(:resource_type)
         entity.resource_type
       else
         entity.class
       end.to_s
     end
 
-    # Get the captive entity's id.
+    # Get the resource ID.
     #
-    # If the entity implements `#to_resource`, we will call that and use the
-    # returned resource's type. If not, but it implements `#resource_id`, we
-    # will use other. Otherwise we call `#id`. If the the entity does not
-    # implement any of these methods, we raise a {NoIdentifierError}.
+    # If the entity implements `#resource_id`, we will use that. Otherwise we
+    # call `#id`. If the the entity does not implement either of these methods,
+    # we raise a {NoIdentifierError}.
     #
     # @return [String] the entity's ID after calling `#to_s` on it.
     def id

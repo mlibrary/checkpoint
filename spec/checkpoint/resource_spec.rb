@@ -13,6 +13,15 @@ RSpec.describe Checkpoint::Resource do
     end
   end
 
+  context 'with an entity that has no usable identifier' do
+    it 'raises an error' do
+      expect do
+        entity = double('entity')
+        described_class.new(entity).id
+      end.to raise_error Checkpoint::NoIdentifierError
+    end
+  end
+
   describe '#token' do
     let(:entity)    { double('entity', class: 'Entity', id: 'id') }
     subject(:token) { described_class.new(entity).token }
@@ -27,6 +36,39 @@ RSpec.describe Checkpoint::Resource do
 
     it 'has the correct id' do
       expect(token.id).to eq('id')
+    end
+  end
+
+  describe '::from' do
+    it 'converts an entity to a resource' do
+      entity   = double('entity', id: 'id')
+      resource = described_class.from(entity)
+      expect(resource).to be_a Checkpoint::Resource
+    end
+
+    context 'with a resource implementing #to_resource' do
+      let(:entity)          { double('entity', to_resource: entity_resource) }
+      let(:entity_resource) { double('entity', type: 'Entity', id: 'id') }
+      let(:resource)        { described_class.from(entity) }
+
+      it 'lets the entity convert itself to a resource' do
+        expect(resource).to eq entity_resource
+      end
+
+      it 'does not ask the entity its #resource_type' do
+        expect(entity).not_to receive(:resource_type)
+        resource.type
+      end
+
+      it 'does not ask the entity its #resource_id' do
+        expect(entity).not_to receive(:resource_id)
+        resource.id
+      end
+
+      it 'does not ask the entity its #id' do
+        expect(entity).not_to receive(:id)
+        resource.id
+      end
     end
   end
 
@@ -45,48 +87,6 @@ RSpec.describe Checkpoint::Resource do
 
     it 'gives a Resource with the special ALL id' do
       expect(wildcard.id).to eq Checkpoint::Resource::ALL
-    end
-  end
-
-  describe '::from' do
-    it 'converts an actor to an agent' do
-      entity   = double('entity', id: 'id')
-      resource = described_class.from(entity)
-      expect(resource).to be_a Checkpoint::Resource
-    end
-
-    context 'with a resource implementing #to_resource' do
-      let(:entity)   { double('entity', to_resource: resource) }
-      let(:resource) { double('entity') }
-
-      it 'lets the entity convert itself to a resource' do
-        converted = described_class.from(entity)
-        expect(converted).to eq resource
-      end
-
-      it 'does not ask the entity its #resource_type' do
-        expect(entity).not_to receive(:resource_type)
-        described_class.from(entity)
-      end
-
-      it 'does not ask the entity its #resource_id' do
-        expect(entity).not_to receive(:resource_id)
-        described_class.from(entity)
-      end
-
-      it 'does not ask the entity its #id' do
-        expect(entity).not_to receive(:id)
-        described_class.from(entity)
-      end
-    end
-  end
-
-  context 'with an entity that has no usable identifier' do
-    it 'raises an error' do
-      expect do
-        entity = double('entity')
-        described_class.new(entity).id
-      end.to raise_error Checkpoint::NoIdentifierError
     end
   end
 
