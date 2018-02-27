@@ -18,7 +18,8 @@ module Checkpoint
   # be likened to an instance of that class, bound to a given agent and
   # possibly bound to a {Resource}.
   class Credential
-    attr_reader :type, :name
+    attr_reader :type, :id
+    alias name id
 
     # Create a new generic Credential. This should generally not be called,
     # preferring to use a factory or instantiate a {Permission}, {Role}, or
@@ -27,9 +28,17 @@ module Checkpoint
     # This class assigns the type 'credential', while most often, applications
     # will want a {Permission}.
     #
+    # The term `name` is more intuitive for credentials than `id`, as is used
+    # with the {Agent} and {Resource} types. This is because most applications
+    # will use primitive strings or symbols as the programmatic objects for
+    # credentials, where as `id` is often associated with a database-assigned
+    # identifier that should not appear in the source code. The parameter is
+    # called `name` here to reflect that intuitive concept, but it is really
+    # an alias for the `id` property of this Credential.
+    #
     # @param name [String|Symbol] the name of this credential
     def initialize(name)
-      @name = name.to_s
+      @id   = name.to_s
       @type = 'credential'
     end
 
@@ -57,15 +66,15 @@ module Checkpoint
 
     # @return [Token] a token for this credential
     def token
-      @token ||= Token.new(type, name)
+      @token ||= Token.new(type, id)
     end
 
     # Compare two Credentials.
     # @param other [Credential] the Credential to compare
-    # @return [Boolean] true if `other` is a Credential and its type and name
-    #   are both eql? to {#type} and {#name}
+    # @return [Boolean] true if `other` is a Credential and its type and id
+    #   are both eql? to {#type} and {#id}
     def eql?(other)
-      type.eql?(other.type) && name.eql?(other.name)
+      type.eql?(other.type) && name.eql?(other.id)
     end
 
     alias == eql?

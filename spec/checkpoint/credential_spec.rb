@@ -20,6 +20,13 @@ RSpec.describe Checkpoint::Credential do
     end
   end
 
+  # Note that this is for consistency in interface with Agent and Resource,
+  # even though name is more intuitive for a Credential.
+  it 'aliases id to name' do
+    credential = described_class.new('name')
+    expect(credential.id).to eq 'name'
+  end
+
   describe '#granted_by' do
     it 'returns the credential itself in an array' do
       credential = described_class.new('name')
