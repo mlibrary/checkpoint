@@ -58,7 +58,7 @@ RSpec.describe Checkpoint::Permits, DB: true do
   end
 
   def credential(type: 'permission', id: 'edit')
-    Checkpoint::Credential.new(type, id)
+    Checkpoint::Credential::Token.new(type, id)
   end
 
   def resource(type: 'resource', id: 1)

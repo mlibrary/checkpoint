@@ -44,7 +44,7 @@ module Checkpoint
       end
 
       def true?
-        authority.permits?(user, Credential.new('role', role), target)
+        authority.permits?(user, Credential::Role.new(name: role), target)
       end
 
       private

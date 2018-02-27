@@ -108,10 +108,10 @@ RSpec.describe Checkpoint::CredentialResolver do
   end
 
   def build_permission(permission)
-    Checkpoint::Credential.new('permission', permission)
+    Checkpoint::Credential::Permission.new(permission)
   end
 
   def build_role(role)
-    Checkpoint::Credential.new('role', role)
+    Checkpoint::Credential::Role.new(role)
   end
 end
