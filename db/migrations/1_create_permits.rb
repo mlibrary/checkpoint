@@ -2,6 +2,7 @@
 
 Sequel.migration do
   change do
+    puts "Migrating: #{__FILE__}"
     create_table :permits do
       primary_key :id
       column :agent_type,       String, size: 100, null: false
@@ -10,10 +11,10 @@ Sequel.migration do
       column :credential_type,  String, size: 100, null: false
       column :credential_id,    String, size: 100, null: false
       column :credential_token, String, size: 201, null: false
-      column :resource_type,    String, size: 100
-      column :resource_id,      String, size: 100
-      column :resource_token,   String, size: 201
-      column :zone_id,          String, size: 100
+      column :resource_type,    String, size: 100, null: false
+      column :resource_id,      String, size: 100, null: false
+      column :resource_token,   String, size: 201, null: false
+      column :zone_id,          String, size: 100, null: false
     end
   end
 end

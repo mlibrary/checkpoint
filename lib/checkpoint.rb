@@ -18,3 +18,4 @@ require 'checkpoint/credential'
 require 'checkpoint/resource'
 require 'checkpoint/authority'
 require 'checkpoint/query'
+require 'checkpoint/railtie' if defined?(Rails)
