@@ -2,7 +2,6 @@
 
 Sequel.migration do
   change do
-    puts "Migrating: #{__FILE__}"
     create_table :permits do
       primary_key :id
       column :agent_type,       String, size: 100, null: false

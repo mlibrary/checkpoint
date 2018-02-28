@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'ostruct'
+require 'logger'
+
 module Checkpoint
   # Module for everything related to the Checkpoint database.
   module DB
@@ -14,21 +17,14 @@ module Checkpoint
     CONNECTION_ERROR = 'The Checkpoint database is not initialized. Call initialize! first.'
 
     class << self
-      # Connect to the Checkpoint database.
+      # Initialize Checkpoint
       #
-      # This initializes the database and requires all of the Checkpoint model
-      # classes. It is required to do the connection setup first because of the
-      # design decision in Sequel that the schema is examined at the time of
-      # extending Sequel::Model.
-      #
-      # @param url  [String] A Sequel database URL
-      # @param opts [Hash] A set of connection options;
-      #   if supplied, `url` will be ignored
-      # @param db [Sequel::Database] An already-connected database;
-      #   if supplied, `url` and `opts` will be ignored
-      # @return [Sequel::Database] The initialized database connection
-      def initialize!(url: nil, opts: nil, db: nil)
-        @db = db || Sequel.connect(opts || url)
+      # This connects to the database if it has not already happened and
+      # requires all of the Checkpoint model classes. It is required to do the
+      # connection setup first because of the design decision in Sequel that
+      # the schema is examined at the time of extending Sequel::Model.
+      def initialize!
+        connect!
         begin
           require_relative 'db/permit'
         rescue Sequel::DatabaseError, NoMethodError => e
@@ -37,10 +33,72 @@ module Checkpoint
         @db
       end
 
+      # Connect to the Checkpoint database.
+      #
+      # The default is to use the settings under {.config}, but can be
+      # supplied here (and they will be merged into config as a side effect).
+      # The keys that will be used from either source are documented here as
+      # the options.
+      #
+      # Only one "mode" will be used; the first of these supplied will take
+      # precedence:
+      #
+      # 1. An already-connected {Sequel::Database} object
+      # 2. A connection string
+      # 3. A connection options hash
+      #
+      # @see {Sequel.connect}
+      # @param [Hash] config Optional connection config
+      # @option config [String] :url A Sequel database URL
+      # @option config [Hash]   :opts A set of connection options
+      # @option config [Sequel::Database] :db An already-connected database;
+      # @return [Sequel::Database] The initialized database connection
+      def connect!(config = {})
+        merge_config!(config)
+        # We splat here because we might give one or two arguments depending
+        # on whether we have a string or not; to add our logger regardless.
+        @db = self.config.db || Sequel.connect(*conn_opts)
+      end
+
+      # Run any pending migrations
+      def migrate!
+        connect!
+        Sequel.extension :migration
+        Sequel::Migrator.run(db, File.join(__dir__, '../../db/migrations'))
+      end
+
+      # Merge url, opts, or db settings from a hash into our config
+      def merge_config!(config = {})
+        self.config.url  = config[:url]  if config.key?(:url)
+        self.config.opts = config[:opts] if config.key?(:opts)
+        self.config.db   = config[:db]   if config.key?(:db)
+      end
+
+      def conn_opts
+        log = { logger: Logger.new('db/checkpoint.log') }
+        url = config.url
+        opts = config.opts || {}
+        if url
+          [url, log]
+        else
+          [opts.merge(log)]
+        end
+      end
+
+      def config
+        @config ||= OpenStruct.new(
+          url: ENV['CHECKPOINT_DATABASE_URL'] || ENV['DATABASE_URL']
+        )
+      end
+
+      def initialized?
+        !@db.nil?
+      end
+
       # The Checkpoint database
       # @return [Sequel::Database] The connected database; be sure to call initialize! first.
       def db
-        raise DatabaseError, CONNECTION_ERROR if @db.nil?
+        raise DatabaseError, CONNECTION_ERROR unless initialized?
         @db
       end
     end

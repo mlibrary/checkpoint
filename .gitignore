@@ -5,6 +5,7 @@
 /spec/reports/
 /tmp/
 
+/db/checkpoint.log
 /db/*.sqlite3
 Gemfile.lock
 
