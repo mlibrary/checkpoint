@@ -8,7 +8,7 @@ require 'sequel_helper'
 # group has to do a lot of fiddling to both verify the behavior and cooperate
 # with the other tests.
 
-RSpec.describe Checkpoint::DB do
+RSpec.xdescribe Checkpoint::DB do
   before(:each) do
     @db = Checkpoint::DB.db
   end

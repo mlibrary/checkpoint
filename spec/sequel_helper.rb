@@ -9,14 +9,14 @@ require 'checkpoint/db'
 
 url = ENV.fetch('DATABASE_URL', nil)
 if url
-  Checkpoint::DB.initialize!(url: url)
+  Checkpoint::DB.connect!(url: url)
 else
   # Set up an in-memory SQLite database and migrate it all the way up
   db = Sequel.sqlite
-  Sequel.extension :migration
-  Sequel::Migrator.run(db, File.join(__dir__, '../db/migrations'))
-  Checkpoint::DB.initialize!(db: db)
+  Checkpoint::DB.connect!(db: db)
+  Checkpoint::DB.migrate!
 end
+Checkpoint::DB.initialize!
 
 RSpec.configure do |config|
   config.around(:each, DB: true) do |example|
