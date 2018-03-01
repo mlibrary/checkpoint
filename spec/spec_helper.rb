@@ -5,6 +5,7 @@ if ENV['COVERAGE'] || ENV['TRAVIS']
   require "coveralls"
   Coveralls.wear! do
     add_filter 'spec/sequel_helper.rb'
+    add_filter 'spec/support/migration_check.rb'
     add_filter 'lib/checkpoint/railtie.rb'
   end
 end

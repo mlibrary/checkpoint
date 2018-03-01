@@ -24,13 +24,15 @@ module Checkpoint
       # connection setup first because of the design decision in Sequel that
       # the schema is examined at the time of extending Sequel::Model.
       def initialize!
-        connect!
+        connect! unless connected?
         begin
-          require_relative 'db/permit'
+          model_files.each do |file|
+            require_relative file
+          end
         rescue Sequel::DatabaseError, NoMethodError => e
           raise DatabaseError, LOAD_ERROR + "\n" + e.message
         end
-        @db
+        db
       end
 
       # Connect to the Checkpoint database.
@@ -47,6 +49,9 @@ module Checkpoint
       # 2. A connection string
       # 3. A connection options hash
       #
+      # While Checkpoint serves as a singleton, this will raise a DatabaseError
+      # if already connected. Check `connected?` if you are unsure.
+      #
       # @see {Sequel.connect}
       # @param [Hash] config Optional connection config
       # @option config [String] :url A Sequel database URL
@@ -54,17 +59,25 @@ module Checkpoint
       # @option config [Sequel::Database] :db An already-connected database;
       # @return [Sequel::Database] The initialized database connection
       def connect!(config = {})
+        raise DatabaseError, "Already connected; refusing to connect to another database" if connected?
         merge_config!(config)
         # We splat here because we might give one or two arguments depending
         # on whether we have a string or not; to add our logger regardless.
         @db = self.config.db || Sequel.connect(*conn_opts)
       end
 
-      # Run any pending migrations
+      # Run any pending migrations.
+      # This will connect with the current config if not already conencted.
       def migrate!
-        connect!
+        connect! unless connected?
         Sequel.extension :migration
         Sequel::Migrator.run(db, File.join(__dir__, '../../db/migrations'))
+      end
+
+      def model_files
+        [
+          'db/permit'
+        ]
       end
 
       # Merge url, opts, or db settings from a hash into our config
@@ -81,7 +94,7 @@ module Checkpoint
         if url
           [url, log]
         else
-          [opts.merge(log)]
+          [log.merge(opts)]
         end
       end
 
@@ -91,14 +104,14 @@ module Checkpoint
         )
       end
 
-      def initialized?
+      def connected?
         !@db.nil?
       end
 
       # The Checkpoint database
       # @return [Sequel::Database] The connected database; be sure to call initialize! first.
       def db
-        raise DatabaseError, CONNECTION_ERROR unless initialized?
+        raise DatabaseError, CONNECTION_ERROR unless connected?
         @db
       end
     end

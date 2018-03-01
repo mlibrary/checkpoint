@@ -19,12 +19,12 @@ Layout/MultilineMethodDefinitionBraceLayout:
   EnforcedStyle: same_line
 
 Metrics/LineLength:
-  Max: 101
+  Max: 110
 
 Metrics/BlockLength:
   Exclude:
     - '*.gemspec'
-  ExcludedMethods: ['describe', 'context']
+  ExcludedMethods: ['describe', 'context', 'xdescribe', 'xcontext']
 
 Style/StringLiterals:
   Enabled: false

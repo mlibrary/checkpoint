@@ -7,14 +7,11 @@
 require_relative 'spec_helper'
 require 'checkpoint/db'
 
-url = ENV.fetch('DATABASE_URL', nil)
-if url
-  Checkpoint::DB.connect!(url: url)
-else
-  # Set up an in-memory SQLite database and migrate it all the way up
-  db = Sequel.sqlite
-  Checkpoint::DB.connect!(db: db)
-  Checkpoint::DB.migrate!
+unless Checkpoint::DB.connected?
+  unless Checkpoint::DB.config.url
+    Checkpoint::DB.config.db = Sequel.sqlite
+    Checkpoint::DB.migrate!
+  end
 end
 Checkpoint::DB.initialize!
 

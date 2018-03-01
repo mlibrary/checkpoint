@@ -8,65 +8,188 @@ require 'sequel_helper'
 # group has to do a lot of fiddling to both verify the behavior and cooperate
 # with the other tests.
 
-RSpec.xdescribe Checkpoint::DB do
-  before(:each) do
-    @db = Checkpoint::DB.db
-  end
+require 'pry'
 
-  after(:each) do
-    Checkpoint::DB.initialize!(db: @db)
-  end
+RSpec.describe Checkpoint::DB do
+  describe '.connect!' do
+    before(:each) { unset_database }
+    after(:each)  { restore_database }
 
-  describe '#initialize!' do
     it 'connects with a URL string' do
-      Checkpoint::DB.initialize!(url: 'mock:///')
+      Checkpoint::DB.connect!(url: 'mock:///')
       expect(Checkpoint::DB.db.adapter_scheme).to eq :mock
     end
 
     it 'connects with an options hash' do
-      Checkpoint::DB.initialize!(opts: { adapter: 'sqlite' })
+      Checkpoint::DB.connect!(opts: { adapter: 'sqlite' })
       expect(Checkpoint::DB.db.adapter_scheme).to eq :sqlite
     end
 
     it 'returns the database' do
-      db = Checkpoint::DB.initialize!(url: 'mock:///')
+      db = Checkpoint::DB.connect!(url: 'mock:///')
       expect(db).to eq Checkpoint::DB.db
     end
 
     it 'can use an existing connection' do
       db = Sequel.sqlite
-      Checkpoint::DB.initialize!(db: db)
-      expect(db).to eq Checkpoint::DB.db
+      Checkpoint::DB.connect!(db: db)
+      expect(db).to equal Checkpoint::DB.db
     end
 
     it 'raises a connection error on a bad URL' do
-      expect { Checkpoint::DB.initialize!(url: 'badurl') }.to raise_error StandardError
+      expect { Checkpoint::DB.connect!(url: 'badurl') }.to raise_error StandardError
     end
+  end
+
+  describe '.initialize!' do
+    before(:each) { unset_database }
+    after(:each)  { restore_database }
 
     describe 'migration check' do
-      def unload_permit
-        $LOADED_FEATURES.delete_if { |file| file.include?('/lib/checkpoint/db/permit.rb') }
-        Checkpoint::DB.send(:remove_const, :Permit)
-      end
-
-      before do
-        @db = Sequel::Model.db
-      end
-
       it 'raises an error if migrations have not been run' do
+        allow(Checkpoint::DB).to receive(:model_files).and_return(['../../spec/support/migration_check'])
         expect do
           db = Sequel.sqlite
           Sequel::Model.db = db
-          unload_permit
-          Checkpoint::DB.initialize!(db: db)
+          Checkpoint::DB.connect!(db: db)
+          Checkpoint::DB.initialize!
         end.to raise_error Checkpoint::DB::DatabaseError
       end
 
-      after do
-        Sequel::Model.db = @db
-        unload_permit
-        Checkpoint::DB.initialize!(db: @db)
+      # This is just a sanity check for the testing environment.
+      # MigrationCheck raises an error if it's already defined to be paranoid
+      # about any class reloading bugs. It exists only to support the above test.
+      it 'only allows MigrationCheck to be required once' do
+        expect do
+          require_relative('../support/migration_check')
+        end.to raise_error RuntimeError
       end
     end
+  end
+
+  describe '.model_files' do
+    it 'lists its model files' do
+      expect(Checkpoint::DB.model_files).to be_an Array
+    end
+  end
+
+  describe '.merge_config!' do
+    before(:each) { unset_database }
+    after(:each)  { restore_database }
+
+    it 'adds a url to the config' do
+      Checkpoint::DB.merge_config!(url: 'url')
+      expect(Checkpoint::DB.config.url).to eq 'url'
+    end
+
+    it 'adds opts to the config' do
+      opts = { adapter: 'sqlite' }
+      Checkpoint::DB.merge_config!(opts: opts)
+      expect(Checkpoint::DB.config.opts).to eq opts
+    end
+
+    it 'adds db to the config' do
+      db = double('database')
+      Checkpoint::DB.merge_config!(db: db)
+      expect(Checkpoint::DB.config.db).to eq db
+    end
+
+    it 'does not add arbitrary keys' do
+      Checkpoint::DB.merge_config!(foo: 'bar')
+      expect(Checkpoint::DB.config.foo).to be_nil
+    end
+  end
+
+  describe '.conn_opts' do
+    before(:each) { unset_database }
+    after(:each)  { restore_database }
+
+    context 'when a URL is configured' do
+      before(:each) { Checkpoint::DB.config.url = 'url' }
+
+      it 'gives the url as the first element' do
+        expect(Checkpoint::DB.conn_opts.first).to eq 'url'
+      end
+
+      it 'gives the logger as the only element of the options' do
+        opts = Checkpoint::DB.conn_opts.last
+        expect(opts.size).to eq 1
+        expect(opts).to have_key :logger
+      end
+    end
+
+    context 'when a URL is not configured' do
+      it 'only returns the opts hash' do
+        expect(Checkpoint::DB.conn_opts.size).to eq 1
+      end
+
+      it 'uses any configured options' do
+        Checkpoint::DB.config.opts = { foo: 'bar' }
+        expect(Checkpoint::DB.conn_opts.first).to have_key(:foo)
+      end
+
+      it 'merges the default logger into the options' do
+        expect(Checkpoint::DB.conn_opts.first).to have_key(:logger)
+      end
+
+      it 'does not overwrite a supplied logger' do
+        logger = double('logger')
+        Checkpoint::DB.config.opts = { logger: logger }
+        expect(Checkpoint::DB.conn_opts.first[:logger]).to equal logger
+      end
+    end
+  end
+
+  describe '.config' do
+    before(:each) { unset_database }
+    after(:each)  { restore_database }
+
+    it 'picks up a DATABASE_URL in the ENV with no explicit action' do
+      allow(ENV).to receive(:[]).and_return(nil)
+      allow(ENV).to receive(:[]).with('DATABASE_URL').and_return('url')
+      expect(Checkpoint::DB.config.url).to eq 'url'
+    end
+
+    it 'picks up a CHECKPOINT_DATABASE_URL in the ENV with no explicit action' do
+      allow(ENV).to receive(:[]).and_return(nil)
+      allow(ENV).to receive(:[]).with('CHECKPOINT_DATABASE_URL').and_return('url')
+      expect(Checkpoint::DB.config.url).to eq 'url'
+    end
+
+    it 'prefers CHECKPOINT_DATABASE_URL to DATABASE_URL' do
+      allow(ENV).to receive(:[]).with('DATABASE_URL').and_return('bad')
+      allow(ENV).to receive(:[]).with('CHECKPOINT_DATABASE_URL').and_return('url')
+      expect(Checkpoint::DB.config.url).to eq 'url'
+    end
+
+    it 'is nil when no URL is in the ENV' do
+      allow(ENV).to receive(:[]).and_return(nil)
+      expect(Checkpoint::DB.config.url).to be_nil
+    end
+  end
+
+  describe '.db' do
+    before(:each) { unset_database }
+    after(:each)  { restore_database }
+
+    it 'raises an error if not yet connected' do
+      expect do
+        Checkpoint::DB.db
+      end.to raise_error Checkpoint::DB::DatabaseError
+    end
+  end
+
+  def unset_database
+    @db     = Checkpoint::DB.db
+    @config = Checkpoint::DB.config
+    Checkpoint::DB.instance_variable_set(:@db, nil)
+    Checkpoint::DB.instance_variable_set(:@config, nil)
+    Sequel::Model.db = nil
+  end
+
+  def restore_database
+    Checkpoint::DB.instance_variable_set(:@db, @db)
+    Checkpoint::DB.instance_variable_set(:@config, @config)
+    Sequel::Model.db = @db
   end
 end
