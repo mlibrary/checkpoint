@@ -10,7 +10,11 @@ module Checkpoint
   #      connection and puts it on Checkpoint::DB.config before any application
   #      initializers are run.
   #   3. Sets up the Checkpoint database connection after application
-  #      initializers have run, if it has not already been done.
+  #      initializers have run, if it has not already been done and we are not
+  #      running as a Rake task. This condition is key because when we are in
+  #      rails server or console, we want to initialize!, but when we are in
+  #      a rake task to update the database, we have to let it connect, but
+  #      not initialize.
   class Railtie < Rails::Railtie
     railtie_name :checkpoint
 
@@ -48,6 +52,14 @@ module Checkpoint
       def ready_blocks
         @ready ||= []
       end
+
+      def under_rake!
+        @rake = true
+      end
+
+      def under_rake?
+        @rake ||= false
+      end
     end
 
     # This runs before anything in 'config/initializers' runs.
@@ -77,8 +89,8 @@ module Checkpoint
     # Checkpoint instance. The `to_prepare` hook is run once at the start of a
     # production instance and for every request in development (unless caching
     # is turned on so there is no reloading).
-    initializer "checkpoint.ready", before: :add_to_prepare_blocks do
-      Checkpoint::DB.initialize!
+    initializer "checkpoint.ready", after: :finisher_hook do
+      Checkpoint::DB.initialize! unless Railtie.under_rake?
 
       Railtie.ready_blocks.each do |block|
         block.call(Checkpoint::DB.db)
@@ -86,6 +98,7 @@ module Checkpoint
     end
 
     rake_tasks do
+      Railtie.under_rake!
       load "tasks/migrate.rake"
     end
   end

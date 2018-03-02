@@ -2,6 +2,7 @@
 
 require 'ostruct'
 require 'logger'
+require 'yaml'
 
 module Checkpoint
   # Module for everything related to the Checkpoint database.
@@ -15,6 +16,16 @@ module Checkpoint
     MSG
 
     CONNECTION_ERROR = 'The Checkpoint database is not initialized. Call initialize! first.'
+
+    ALREADY_CONNECTED = 'Already connected; refusing to connect to another database.'
+
+    MISSING_CONFIG = <<~MSG
+      CHECKPOINT_DATABASE_URL and DATABASE_URL are both missing and a connection
+      has not been configured. Cannot connect to the Checkpoint database.
+      See Checkpoint::DB.connect! for help.
+    MSG
+
+    SCHEMA_HEADER = "# Checkpoint Database Version\n"
 
     class << self
       # Initialize Checkpoint
@@ -59,8 +70,10 @@ module Checkpoint
       # @option config [Sequel::Database] :db An already-connected database;
       # @return [Sequel::Database] The initialized database connection
       def connect!(config = {})
-        raise DatabaseError, "Already connected; refusing to connect to another database" if connected?
+        raise DatabaseError, ALREADY_CONNECTED if connected?
         merge_config!(config)
+        raise DatabaseError, MISSING_CONFIG if self.config.db.nil? && conn_opts.empty?
+
         # We splat here because we might give one or two arguments depending
         # on whether we have a string or not; to add our logger regardless.
         @db = self.config.db || Sequel.connect(*conn_opts)
@@ -72,6 +85,19 @@ module Checkpoint
         connect! unless connected?
         Sequel.extension :migration
         Sequel::Migrator.run(db, File.join(__dir__, '../../db/migrations'))
+      end
+
+      def dump_schema!
+        connect! unless connected?
+        version = db[:schema_info].first.to_yaml
+        File.write('db/checkpoint.yml', SCHEMA_HEADER + version)
+      end
+
+      def load_schema!
+        connect! unless connected?
+        version = YAML.load_file('db/checkpoint.yml')[:version]
+        db[:schema_info].delete
+        db[:schema_info].insert(version: version)
       end
 
       def model_files
@@ -90,11 +116,13 @@ module Checkpoint
       def conn_opts
         log = { logger: Logger.new('db/checkpoint.log') }
         url = config.url
-        opts = config.opts || {}
+        opts = config.opts
         if url
           [url, log]
-        else
+        elsif opts
           [log.merge(opts)]
+        else
+          []
         end
       end
 
@@ -113,6 +141,12 @@ module Checkpoint
       def db
         raise DatabaseError, CONNECTION_ERROR unless connected?
         @db
+      end
+
+      # Forward the Sequel::Database []-syntax down to db for convenience.
+      # Everything else must be called on db directly, but this is nice sugar.
+      def [](*args)
+        db[*args]
       end
     end
   end

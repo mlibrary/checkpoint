@@ -8,8 +8,8 @@ require_relative 'spec_helper'
 require 'checkpoint/db'
 
 unless Checkpoint::DB.connected?
-  unless Checkpoint::DB.config.url
-    Checkpoint::DB.config.db = Sequel.sqlite
+  if Checkpoint::DB.conn_opts.empty?
+    Checkpoint::DB.connect!(db: Sequel.sqlite)
     Checkpoint::DB.migrate!
   end
 end

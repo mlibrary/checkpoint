@@ -1,20 +1,18 @@
 # frozen_string_literal: true
 
-require 'sequel_helper'
-
 # This is a rather odd spec file because its purpose is to test that the config
 # handling/startup is working as expected. The rest of the tests that depend on
 # the database just require 'sequel_helper', which handles the setup. This
 # group has to do a lot of fiddling to both verify the behavior and cooperate
 # with the other tests.
 
-require 'pry'
+require 'yaml'
 
 RSpec.describe Checkpoint::DB do
-  describe '.connect!' do
-    before(:each) { unset_database }
-    after(:each)  { restore_database }
+  before(:each) { unset_database }
+  after(:each)  { restore_database }
 
+  describe '.connect!' do
     it 'connects with a URL string' do
       Checkpoint::DB.connect!(url: 'mock:///')
       expect(Checkpoint::DB.db.adapter_scheme).to eq :mock
@@ -39,12 +37,13 @@ RSpec.describe Checkpoint::DB do
     it 'raises a connection error on a bad URL' do
       expect { Checkpoint::DB.connect!(url: 'badurl') }.to raise_error StandardError
     end
+
+    it 'raises an error with no connection information' do
+      expect { Checkpoint::DB.connect! }.to raise_error Checkpoint::DB::DatabaseError
+    end
   end
 
   describe '.initialize!' do
-    before(:each) { unset_database }
-    after(:each)  { restore_database }
-
     describe 'migration check' do
       it 'raises an error if migrations have not been run' do
         allow(Checkpoint::DB).to receive(:model_files).and_return(['../../spec/support/migration_check'])
@@ -67,6 +66,50 @@ RSpec.describe Checkpoint::DB do
     end
   end
 
+  describe '.migrate!' do
+    it 'creates the tables to support the models and initialization' do
+      db = Sequel.sqlite
+      Checkpoint::DB.connect!(db: db)
+      Checkpoint::DB.migrate!
+      expect(db[:permits].columns).to_not be nil
+    end
+  end
+
+  describe '.dump_schema!' do
+    before(:each) do
+      db = Sequel.sqlite
+      db.create_table(:schema_info) { int :version }
+      db[:schema_info].insert(version: 1)
+      Checkpoint::DB.connect!(db: db)
+    end
+
+    after(:each) { restore_database }
+
+    it 'writes the schema version to db/checkpoint.yml' do
+      expect(File)
+        .to receive(:write)
+        .with('db/checkpoint.yml', Checkpoint::DB::SCHEMA_HEADER + "---\n:version: 1\n")
+
+      Checkpoint::DB.dump_schema!
+    end
+  end
+
+  describe '.load_schema!' do
+    before(:each) do
+      db = Sequel.sqlite
+      db.create_table(:schema_info) { int :version }
+      Checkpoint::DB.connect!(db: db)
+    end
+
+    after(:each) { restore_database }
+
+    it 'inserts the schema version from db/checkpoint.yml' do
+      expect(YAML).to receive(:load_file).with('db/checkpoint.yml').and_return(version: 1)
+      Checkpoint::DB.load_schema!
+      expect(Checkpoint::DB[:schema_info].first[:version]).to eq 1
+    end
+  end
+
   describe '.model_files' do
     it 'lists its model files' do
       expect(Checkpoint::DB.model_files).to be_an Array
@@ -74,9 +117,6 @@ RSpec.describe Checkpoint::DB do
   end
 
   describe '.merge_config!' do
-    before(:each) { unset_database }
-    after(:each)  { restore_database }
-
     it 'adds a url to the config' do
       Checkpoint::DB.merge_config!(url: 'url')
       expect(Checkpoint::DB.config.url).to eq 'url'
@@ -101,9 +141,6 @@ RSpec.describe Checkpoint::DB do
   end
 
   describe '.conn_opts' do
-    before(:each) { unset_database }
-    after(:each)  { restore_database }
-
     context 'when a URL is configured' do
       before(:each) { Checkpoint::DB.config.url = 'url' }
 
@@ -120,6 +157,7 @@ RSpec.describe Checkpoint::DB do
 
     context 'when a URL is not configured' do
       it 'only returns the opts hash' do
+        Checkpoint::DB.config.opts = {}
         expect(Checkpoint::DB.conn_opts.size).to eq 1
       end
 
@@ -129,6 +167,7 @@ RSpec.describe Checkpoint::DB do
       end
 
       it 'merges the default logger into the options' do
+        Checkpoint::DB.config.opts = {}
         expect(Checkpoint::DB.conn_opts.first).to have_key(:logger)
       end
 
@@ -141,8 +180,13 @@ RSpec.describe Checkpoint::DB do
   end
 
   describe '.config' do
-    before(:each) { unset_database }
-    after(:each)  { restore_database }
+    before(:each) do
+      # This is a special case because it's a caching assignment to do the ENV
+      # lookups. For all the other tests, we just use an empty OpenStruct
+      Checkpoint::DB.instance_variable_set(:@config, nil)
+    end
+
+    after(:each) { restore_database }
 
     it 'picks up a DATABASE_URL in the ENV with no explicit action' do
       allow(ENV).to receive(:[]).and_return(nil)
@@ -169,9 +213,6 @@ RSpec.describe Checkpoint::DB do
   end
 
   describe '.db' do
-    before(:each) { unset_database }
-    after(:each)  { restore_database }
-
     it 'raises an error if not yet connected' do
       expect do
         Checkpoint::DB.db
@@ -179,11 +220,20 @@ RSpec.describe Checkpoint::DB do
     end
   end
 
+  describe '[]' do
+    it 'passes everything on to db' do
+      db = double('database')
+      Checkpoint::DB.connect!(db: db)
+      expect(db).to receive(:[]).with(:table)
+      Checkpoint::DB[:table]
+    end
+  end
+
   def unset_database
     @db     = Checkpoint::DB.db
     @config = Checkpoint::DB.config
     Checkpoint::DB.instance_variable_set(:@db, nil)
-    Checkpoint::DB.instance_variable_set(:@config, nil)
+    Checkpoint::DB.instance_variable_set(:@config, OpenStruct.new)
     Sequel::Model.db = nil
   end
 
