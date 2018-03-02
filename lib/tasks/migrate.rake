@@ -23,7 +23,6 @@ if defined?(Rails)
 
   # We hook into db:migrate for convenience.
   Rake::Task['db:migrate'].enhance do
-    puts "---- I'm enhancing db:migrate, can't you tell? ----"
     Rake::Task['checkpoint:migrate'].invoke
   end
 

@@ -78,8 +78,8 @@ RSpec.describe Checkpoint::DB do
   describe '.dump_schema!' do
     before(:each) do
       db = Sequel.sqlite
-      db.create_table(:schema_info) { int :version }
-      db[:schema_info].insert(version: 1)
+      db.create_table(:checkpoint_schema) { int :version }
+      db[:checkpoint_schema].insert(version: 1)
       Checkpoint::DB.connect!(db: db)
     end
 
@@ -97,7 +97,7 @@ RSpec.describe Checkpoint::DB do
   describe '.load_schema!' do
     before(:each) do
       db = Sequel.sqlite
-      db.create_table(:schema_info) { int :version }
+      db.create_table(:checkpoint_schema) { int :version }
       Checkpoint::DB.connect!(db: db)
     end
 
@@ -106,7 +106,8 @@ RSpec.describe Checkpoint::DB do
     it 'inserts the schema version from db/checkpoint.yml' do
       expect(YAML).to receive(:load_file).with('db/checkpoint.yml').and_return(version: 1)
       Checkpoint::DB.load_schema!
-      expect(Checkpoint::DB[:schema_info].first[:version]).to eq 1
+      version = Checkpoint::DB[:checkpoint_schema].get(:version)
+      expect(version).to eq 1
     end
   end
 

@@ -84,20 +84,28 @@ module Checkpoint
       def migrate!
         connect! unless connected?
         Sequel.extension :migration
-        Sequel::Migrator.run(db, File.join(__dir__, '../../db/migrations'))
+        Sequel::Migrator.run(db, File.join(__dir__, '../../db/migrations'), table: schema_table)
+      end
+
+      def schema_table
+        :checkpoint_schema
+      end
+
+      def schema_file
+        'db/checkpoint.yml'
       end
 
       def dump_schema!
         connect! unless connected?
-        version = db[:schema_info].first.to_yaml
-        File.write('db/checkpoint.yml', SCHEMA_HEADER + version)
+        version = db[schema_table].first.to_yaml
+        File.write(schema_file, SCHEMA_HEADER + version)
       end
 
       def load_schema!
         connect! unless connected?
-        version = YAML.load_file('db/checkpoint.yml')[:version]
-        db[:schema_info].delete
-        db[:schema_info].insert(version: version)
+        version = YAML.load_file(schema_file)[:version]
+        db[schema_table].delete
+        db[schema_table].insert(version: version)
       end
 
       def model_files
