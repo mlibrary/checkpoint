@@ -28,32 +28,23 @@ module Checkpoint
       end
     end
 
-    it 'computes a token from its type and ID' do
-      expect(agent.token).to eq('a_type:an_id')
+    it 'gives a string token with its type and ID' do
+      expect(agent.to_s).to eq('a_type:an_id')
     end
 
-    it 'gives an agent URI' do
+    it 'gives an agent URI with its type and ID' do
       expect(agent.uri).to eq('agent://a_type/an_id')
     end
 
-    describe "#to_s" do
-      it 'gives the token' do
-        expect(agent.to_s).to eq('a_type:an_id')
+    describe '#inspect' do
+      it 'gives the URI' do
+        expect(agent.inspect).to eq('agent://a_type/an_id')
       end
     end
 
-    describe '#sql_literal' do
-      it 'gives the quoted token string' do
-        dataset = double('sequel dataset')
-        literal = agent.sql_literal(dataset)
-        expect(literal).to eq "'#{agent.token}'"
-      end
-
-      it 'strips any single quotes in the token' do
-        dataset = double('sequel dataset')
-        agent   = described_class.new("'type", "'id")
-        literal = agent.sql_literal(dataset)
-        expect(literal).to eq "'type:id'"
+    describe '#token' do
+      it 'returns itself' do
+        expect(agent.token).to equal agent
       end
     end
 

@@ -23,26 +23,19 @@ module Checkpoint
         @id = id.to_s
       end
 
-      # @return [String] a token suitable for granting or matching this credential
-      def token
-        "#{type}:#{id}"
-      end
-
       # @return [String] a URI for this credential, including its type and id
       def uri
         "credential://#{type}/#{id}"
       end
 
-      # @return [String] this credential's token
-      # @see #token
-      def to_s
-        token
+      # @return [Token] self; for convenience of taking a Credential or token
+      def token
+        self
       end
 
-      # Return a version of this token for use in an SQL query
-      # @return [String] the token string, with any single quotes removed, then quoted
-      def sql_literal(_dataset)
-        "'" + token.delete("'") + "'"
+      # @return [String] a token suitable for granting or matching this credential
+      def to_s
+        "#{type}:#{id}"
       end
 
       # Compare with another Credential for equality. Consider them to represent
@@ -52,6 +45,7 @@ module Checkpoint
       end
 
       alias == eql?
+      alias inspect uri
     end
   end
 end

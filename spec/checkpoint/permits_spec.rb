@@ -49,19 +49,21 @@ RSpec.describe Checkpoint::Permits, DB: true do
 
   ## Helper methods for creating permits, etc.
 
-  def new_permit(agent, credential, resource, zone: 'system')
+  def new_permit(agent, credential, resource, zone: '(all)')
     Checkpoint::DB::Permit.from(agent, credential, resource, zone: zone)
   end
 
   def agent(type: 'user', id: 'userid')
-    Checkpoint::Agent::Token.new(type, id)
+    user = double('user', agent_type: type, id: id)
+    Checkpoint::Agent.new(user)
   end
 
-  def credential(type: 'permission', id: 'edit')
-    Checkpoint::Credential::Token.new(type, id)
+  def credential(id: 'edit')
+    Checkpoint::Credential::Permission.new(id)
   end
 
   def resource(type: 'resource', id: 1)
-    Checkpoint::Resource::Token.new(type, id)
+    entity = double('entity', resource_type: type, id: id)
+    Checkpoint::Resource.new(entity)
   end
 end

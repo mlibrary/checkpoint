@@ -37,9 +37,9 @@ module Checkpoint
         @all ||= new(Resource::ALL, Resource::ALL).freeze
       end
 
-      # @return [String] a token suitable for granting or matching this resource
+      # @return [Token] self; for convenience of taking a Resource or token
       def token
-        "#{type}:#{id}"
+        self
       end
 
       # @return [String] a URI for this resource, including its type and id
@@ -47,16 +47,9 @@ module Checkpoint
         "resource://#{type}/#{id}"
       end
 
-      # @return [String] this resource's token
-      # @see #token
+      # @return [String] a token suitable for granting or matching this resource
       def to_s
-        token
-      end
-
-      # Return a version of this token for use in an SQL query
-      # @return [String] the token string, with any single quotes removed, then quoted
-      def sql_literal(_dataset)
-        "'" + token.delete("'") + "'"
+        "#{type}:#{id}"
       end
 
       # Compare with another Resource for equality. Consider them to represent
@@ -66,6 +59,7 @@ module Checkpoint
       end
 
       alias == eql?
+      alias inspect uri
     end
   end
 end

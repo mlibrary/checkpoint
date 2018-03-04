@@ -28,12 +28,24 @@ module Checkpoint
       end
     end
 
-    it 'computes a token from its type and ID' do
-      expect(resource.token).to eq('a_type:an_id')
+    it 'gives a string token with its type and ID' do
+      expect(resource.to_s).to eq('a_type:an_id')
     end
 
-    it 'gives a resource URI' do
+    it 'gives a resource URI with its type and ID' do
       expect(resource.uri).to eq('resource://a_type/an_id')
+    end
+
+    describe '#inspect' do
+      it 'gives the URI' do
+        expect(resource.inspect).to eq('resource://a_type/an_id')
+      end
+    end
+
+    describe '#token' do
+      it 'returns itself' do
+        expect(resource.token).to equal resource
+      end
     end
 
     describe "#all" do
@@ -50,27 +62,6 @@ module Checkpoint
       it 'freezes the singleton' do
         all = described_class.all
         expect { all.instance_variable_set(:@type, 'any') }.to raise_error(RuntimeError)
-      end
-    end
-
-    describe "#to_s" do
-      it 'gives the token' do
-        expect(resource.to_s).to eq('a_type:an_id')
-      end
-    end
-
-    describe '#sql_literal' do
-      it 'gives the quoted token string' do
-        dataset = double('sequel dataset')
-        literal = resource.sql_literal(dataset)
-        expect(literal).to eq "'#{resource.token}'"
-      end
-
-      it 'strips any single quotes in the token' do
-        dataset  = double('sequel dataset')
-        resource = described_class.new("'type", "'id")
-        literal  = resource.sql_literal(dataset)
-        expect(literal).to eq "'type:id'"
       end
     end
 
