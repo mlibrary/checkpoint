@@ -10,11 +10,6 @@ module Checkpoint
     # Any error with the database that Checkpoint itself detects but cannot handle.
     class DatabaseError < StandardError; end
 
-    LOAD_ERROR = <<~MSG
-      Error loading Checkpoint database models.
-      Verify connection information and that the database is migrated.
-    MSG
-
     CONNECTION_ERROR = 'The Checkpoint database is not initialized. Call initialize! first.'
 
     ALREADY_CONNECTED = 'Already connected; refusing to connect to another database.'
@@ -23,6 +18,11 @@ module Checkpoint
       CHECKPOINT_DATABASE_URL and DATABASE_URL are both missing and a connection
       has not been configured. Cannot connect to the Checkpoint database.
       See Checkpoint::DB.connect! for help.
+    MSG
+
+    LOAD_ERROR = <<~MSG
+      Error loading Checkpoint database models.
+      Verify connection information and that the database is migrated.
     MSG
 
     SCHEMA_HEADER = "# Checkpoint Database Version\n"
@@ -80,7 +80,7 @@ module Checkpoint
       end
 
       # Run any pending migrations.
-      # This will connect with the current config if not already conencted.
+      # This will connect with the current config if not already connected.
       def migrate!
         connect! unless connected?
         Sequel.extension :migration
