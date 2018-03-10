@@ -3,7 +3,7 @@
 module Checkpoint
   module DB
     # Sequel model for permits
-    class Permit < Sequel::Model
+    class Permit < Sequel::Model(DB.db)
       # Instantiate a Permit from the constituent domain objects (agent,
       # resource, credential).
       def self.from(agent, credential, resource, zone: 'system')
