@@ -12,13 +12,15 @@ RSpec.describe Checkpoint::Resource::Resolver do
     it 'resolves to only the entity and type resources' do
       entity   = Checkpoint::Resource.new(listing)
       wildcard = Checkpoint::Resource::AllOfType.from(listing)
-      expect(resources).to contain_exactly(entity, wildcard)
+      all      = Checkpoint::Resource.all
+      expect(resources).to contain_exactly(entity, wildcard, all)
     end
 
     it 'uses the same same wildcard with factory and instantiation' do
       entity   = Checkpoint::Resource.new(listing)
       wildcard = Checkpoint::Resource::AllOfType.new('listing')
-      expect(resources).to contain_exactly(entity, wildcard)
+      all      = Checkpoint::Resource.all
+      expect(resources).to contain_exactly(entity, wildcard, all)
     end
   end
 end
