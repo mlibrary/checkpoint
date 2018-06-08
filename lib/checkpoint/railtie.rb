@@ -42,23 +42,23 @@ module Checkpoint
       end
 
       def before_blocks
-        @before ||= []
+        @before_blocks ||= []
       end
 
       def after_blocks
-        @after ||= []
+        @after_blocks ||= []
       end
 
       def ready_blocks
-        @ready ||= []
+        @ready_blocks ||= []
       end
 
       def under_rake!
-        @rake = true
+        @under_rake = true
       end
 
       def under_rake?
-        @rake ||= false
+        @under_rake ||= false
       end
     end
 
