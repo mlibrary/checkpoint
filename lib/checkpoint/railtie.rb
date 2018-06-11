@@ -66,9 +66,14 @@ module Checkpoint
     initializer "checkpoint.before_initializers", before: :load_config_initializers do
       config = Checkpoint::DB.config
       unless config.url
-        opts = ActiveRecord::Base.connection.instance_variable_get(:@config).dup
-        opts.delete(:flags)
-        config[:opts] = opts
+        case Rails.env
+        when "development"
+          config[:opts] = { adapter: 'sqlite', database: 'db/checkpoint_development.sqlite3' }
+        when "test"
+          config[:opts] = { adapter: 'sqlite' }
+        else
+          raise "Checkpoint::DB.config must be configured."
+        end
       end
 
       Railtie.before_blocks.each do |block|

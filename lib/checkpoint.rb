@@ -3,7 +3,6 @@
 require "checkpoint/version"
 
 require 'sequel'
-require 'mysql2'
 require 'ettin'
 
 # All of the Checkpoint components are contained within this top-level module.
