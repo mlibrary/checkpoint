@@ -71,8 +71,6 @@ module Checkpoint
           config[:opts] = { adapter: 'sqlite', database: 'db/checkpoint_development.sqlite3' }
         when "test"
           config[:opts] = { adapter: 'sqlite' }
-        else
-          raise "Checkpoint::DB.config must be configured."
         end
       end
 
@@ -84,6 +82,7 @@ module Checkpoint
     # This runs after everything in 'config/initializers' runs.
     initializer "checkpoint.after_initializers", after: :load_config_initializers do
       config = Checkpoint::DB.config
+      raise "Checkpoint::DB.config must be configured." unless config.url || config.opts
       Railtie.after_blocks.each do |block|
         block.call(config.to_h)
       end
