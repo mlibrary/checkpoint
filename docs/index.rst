@@ -30,4 +30,4 @@ Table of Contents
 
     policies
 
-.. Keycard_: https://github.com/mlibrary/keycard
+.. _Keycard: https://github.com/mlibrary/keycard
