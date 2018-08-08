@@ -17,12 +17,17 @@ where enterprise, legacy, and new systems must all interoperate.
 Checkpoint emphasizes the use of policies and object-oriented design, giving
 examples from very simple rules through complex group- and role-based scenarios.
 
+Checkpoint does not handle authentication at all. See Keycard_ for a library
+that does so and provides identity attributes that can be used as the basis for
+grants and policies.
+
+
 Table of Contents
 -----------------
 
 .. toctree::
     :maxdepth: 2
 
-    authentication
     policies
 
+.. Keycard_: https://github.com/mlibrary/keycard
