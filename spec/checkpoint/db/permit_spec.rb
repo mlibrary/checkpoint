@@ -4,6 +4,8 @@ require 'sequel_helper'
 require 'checkpoint/db/permit'
 
 RSpec.describe Checkpoint::DB::Permit, DB: true do
+  Permit = Checkpoint::DB::Permit
+
   let(:agent) do
     double('agent', type: 'user', id: 'id', token: 'user:id')
   end
@@ -46,8 +48,8 @@ RSpec.describe Checkpoint::DB::Permit, DB: true do
     end
 
     context 'without a zone supplied' do
-      it 'uses the system zone' do
-        expect(permit.zone_id).to eq 'system'
+      it 'uses the default, system zone' do
+        expect(permit.zone_id).to eq Permit.default_zone
       end
     end
 

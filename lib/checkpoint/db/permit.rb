@@ -6,7 +6,7 @@ module Checkpoint
     class Permit < Sequel::Model(DB.db)
       # Instantiate a Permit from the constituent domain objects (agent,
       # resource, credential).
-      def self.from(agent, credential, resource, zone: 'system')
+      def self.from(agent, credential, resource, zone: default_zone)
         new(
           agent_type: agent.type,           agent_id: agent.id,           agent_token: agent.token,
           credential_type: credential.type, credential_id: credential.id, credential_token: credential.token,
