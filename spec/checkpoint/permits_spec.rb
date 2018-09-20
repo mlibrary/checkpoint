@@ -7,12 +7,36 @@ require 'checkpoint/credential/token'
 require 'checkpoint/resource/token'
 require 'checkpoint/permits'
 
+# Note that this is tagged with DB, which triggers setup and teardown
+# of a clean database on each example.
 RSpec.describe Checkpoint::Permits, DB: true do
   subject(:permits) { described_class.new }
 
+  describe '#permit!' do
+    it "adds one permit" do
+      permit = permits.permit! agent, credential, resource
+      expect(permits.for(agent, credential, resource)).to contain_exactly(permit)
+    end
+  end
+
+  describe '#revoke!' do
+    it "deletes the permit" do
+      permits.permit!(agent, credential, resource)
+      permits.revoke!(agent, credential, resource)
+      expect(permits.any?(agent, credential, resource)).to be false
+    end
+
+    it "does not delete other permits" do
+      one = permits.permit!(agent, credential, resource(id: 'one'))
+      two = permits.permit!(agent, credential, resource(id: 'two'))
+      permits.revoke!(agent, credential, resource(id: 'one'))
+
+      expect(permits.for(agent, credential, resource(id: 'two'))).to contain_exactly(two)
+    end
+  end
+
   context 'when storing one permit in the default zone' do
-    let(:permit)  { new_permit(agent, credential, resource) }
-    before(:each) { permit.save }
+    let!(:permit)  { permits.permit!(agent, credential, resource) }
 
     context 'and searching for it' do
       describe '#for' do
@@ -48,10 +72,6 @@ RSpec.describe Checkpoint::Permits, DB: true do
   end
 
   ## Helper methods for creating permits, etc.
-
-  def new_permit(agent, credential, resource, zone: '(all)')
-    Checkpoint::DB::Permit.from(agent, credential, resource, zone: zone)
-  end
 
   def agent(type: 'user', id: 'userid')
     user = double('user', agent_type: type, id: id)

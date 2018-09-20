@@ -17,28 +17,73 @@ module Checkpoint
     end
 
     def for(agents, credentials, resources)
-      where(agents, credentials, resources).select
+      where(agents, credentials, resources).all
     end
 
     def any?(agents, credentials, resources)
       where(agents, credentials, resources).first != nil
     end
 
+    # Grant a single permit.
+    # @return [Permit] the saved Permit
+    def permit!(agent, credential, resource)
+      permits.from(agent, credential, resource).tap(&:save)
+    end
+
+    # Delete matching permits.
+    #
+    # Take care to note that this follows the same matching semantics as
+    # {.for}. There is no expansion done here, but anything that matches what
+    # is supplied will be deleted. Of particular note is the default wildcard
+    # behavior of {Checkpoint::Resource::Resolver}: if a specific resource has
+    # been expanded by the resolver, and the array of the resource, a type
+    # wildcard, and the any-resource wildcard (as used for inherited matching)
+    # is supplied, the results may be surprising where there are permits at
+    # specific and general levels.
+    #
+    # In general, the parameters should not have been expanded. If the intent
+    # is to revoke a general permit, the general details should be supplied,
+    # and likewise for the specific case.
+    #
+    # Applications should interact with the {Checkpoint::Authority}, which
+    # exposes a more application-oriented interface. This repository should be
+    # considered internal to Checkpoint.
+    #
+    # @param agents [Agent|Array] the agent or agents to match for deletion
+    # @param credentials [Credential|Array] the credential or credentials to match for deletion
+    # @param resources [Resource|Array] the resource or resources to match for deletion
+    # @return [Integer] the number of Permits deleted
+    def revoke!(agents, credentials, resources)
+      where(agents, credentials, resources).delete
+    end
+
     private
 
     def where(agents, credentials, resources)
-      Query.new(agents, credentials, resources, scope: permits)
+      CartesianSelect.new(agents, credentials, resources, scope: permits)
     end
 
     attr_reader :permits
 
     # A query object based on agents, credentials, and resources.
     #
-    # This is a helper to capture a set of agents, credentials, and resources,
-    # and manage assembly of placeholder variables and binding expressions in
-    # the way Sequel expects them. It can take single items or arrays and
+    # This query mirrors the essence of the Checkpoint semantics; that is, it
+    # finds permits for any supplied agent, for any supplied credential, for
+    # any supplied resource.
+    #
+    # The class is called CartesianSelect because the logical search space is
+    # the Cartesian product of the supplied agents X credentials X resources.
+    # All permits in that space are selected.
+    #
+    # This is ultimately implemented as an IN clause for each token type
+    # containing all members of that type: one for agent_token, one for
+    # credential_token, and one for resource_token.
+    #
+    # This is a separate class because assembling placeholder variables and
+    # binding expressions in the way Sequel expects them is relatively
+    # complicated in its own right. It can take single items or arrays and
     # converts them all to their tokens for query purposes.
-    class Query
+    class CartesianSelect
       attr_reader :agents, :credentials, :resources, :scope
 
       def initialize(agents, credentials, resources, scope: Checkpoint::DB::Permit)
@@ -52,12 +97,16 @@ module Checkpoint
         scope.where(conditions)
       end
 
-      def select
+      def all
         exec(:select)
       end
 
       def first
         exec(:first)
+      end
+
+      def delete
+        exec(:delete)
       end
 
       def conditions
