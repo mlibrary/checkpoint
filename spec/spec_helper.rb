@@ -2,8 +2,13 @@
 
 require "bundler/setup"
 if ENV['COVERAGE'] || ENV['TRAVIS']
+  require "simplecov"
   require "coveralls"
-  Coveralls.wear! do
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+    SimpleCov::Formatter::HTMLFormatter,
+    Coveralls::SimpleCov::Formatter
+  ])
+  SimpleCov.start do
     add_filter 'spec/sequel_helper.rb'
     add_filter 'spec/support/migration_check.rb'
     add_filter 'lib/checkpoint/railtie.rb'
