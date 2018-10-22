@@ -47,7 +47,7 @@ module Checkpoint
       #   if current_user has at least one row in each of of these columns,
       #   they have been "granted permission"
       permits.for(
-        agent_resolver.resolve(agent),
+        agent_resolver.expand(agent),
         credential_resolver.resolve(credential),
         resource_resolver.resolve(resource)
       ).any?

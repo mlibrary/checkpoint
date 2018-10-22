@@ -12,36 +12,28 @@ module Checkpoint
   # that permits are granted to agents, and that agents may be representative
   # of multiple concrete actors, such as any person affiliated with a given
   # institution or any member of a given group.
+  #
+  # In an application, agents will typically be created by the
+  # {Agent::Resolver} registered with an {Checkpoint::Authority}. This keeps
+  # most of the application code decoupled from the Agent type, allowing the
+  # binding to happen in an isolated component. It will also generally not be
+  # required to subclass Agent, since it delegates to the concrete actor in
+  # flexible, well-defined ways, detailed on the individual methods here.
   class Agent
     attr_accessor :actor
 
-    # Create an Agent. This should not be called externally; use {::from} instead.
+    # Create an Agent, wrapping a concrete actor.
+    #
+    # When retrieving the ID or type, we will delegate to the the actor at that
+    # time. See the {#id} and {#type} methods for exact semantics.
     def initialize(actor)
       @actor = actor
     end
 
-    # Default conversion from an actor to an {Agent}.
+    # Get the wrapped actor's type.
     #
-    # If the actor implements #to_agent, we will delegate to it. Otherwise,
-    # we check if the actor implements #agent_type or #agent_id; if so, we
-    # use them as the type and id, respectively. If not, we use the actor's
-    # class name as the type and call #id for the id. If the actor does not
-    # implement any of the ways to supply an #id, an error will be raised.
-    #
-    # @return [Agent] the actor converted to an agent
-    def self.from(actor)
-      if actor.respond_to?(:to_agent)
-        actor.to_agent
-      else
-        new(actor)
-      end
-    end
-
-    # Get the captive actor's type.
-    #
-    # If the entity implements `#to_agent`, we will call that and use the
-    # returned agent's type. If not, but it implements `#agent_type`, we
-    # will use that. Otherwise, we use the actors's class name.
+    # If the actor implements `#agent_type`, we will return that. Otherwise,
+    # we use the actors's class name.
     #
     # @return [String] the name of the actor's type after calling `#to_s` on it.
     def type
@@ -52,14 +44,13 @@ module Checkpoint
       end.to_s
     end
 
-    # Get the captive actor's id.
+    # Get the wrapped actor's ID.
     #
-    # If the entity implements `#to_agent`, we will call that and use the
-    # returned agent's id. If not, but it implements `#agent_id`, we
-    # will use that. Otherwise, we call `#id`. If the the actor does not
-    # implement any of these methods, we raise a {NoIdentifierError}.
+    # If the actor implements `#agent_id`, we will call it and return that
+    # value. Otherwise, we call `#id`. If the the actor does not implement
+    # either of these methods, we raise a {NoIdentifierError}.
     #
-    # @return [String] the name of the actor's type after calling `#to_s` on it.
+    # @return [String] the actor's ID after calling `#to_s` on it.
     def id
       if actor.respond_to?(:agent_id)
         actor.agent_id

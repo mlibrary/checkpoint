@@ -22,20 +22,20 @@ RSpec.describe Checkpoint::Authority do
   let(:action)  { :read }
   let(:target)  { listing }
 
-  let(:agent_resolver) { instance_double('Agent::Resolver', resolve: []) }
-  let(:guest_resolver) { instance_double('Agent::Resolver', resolve: ['account-type:guest']) }
+  let(:agent_resolver) { instance_double('Agent::Resolver', expand: []) }
+  let(:guest_resolver) { instance_double('Agent::Resolver', expand: ['account-type:guest']) }
 
   let(:anna_resolver) do
     instance_double(
       'Agent::Resolver',
-      resolve: ['user:anna', 'account-type:umich', 'affiliation:lib-staff']
+      expand: ['user:anna', 'account-type:umich', 'affiliation:lib-staff']
     )
   end
 
   let(:katy_resolver) do
     instance_double(
       'Agent::Resolver',
-      resolve: ['user:katy', 'account-type:umich', 'affiliation:faculty']
+      expand: ['user:katy', 'account-type:umich', 'affiliation:faculty']
     )
   end
 
