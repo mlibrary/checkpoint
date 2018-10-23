@@ -46,19 +46,6 @@ module Checkpoint
       @entity = entity
     end
 
-    # Default conversion from an entity to a Resource. Prefer this to creating
-    # new instances by hand.
-    #
-    # If the entity implements #to_resource, we will delegate to it. Otherwise,
-    # we will return a Resource for this entity.
-    def self.from(entity)
-      if entity.respond_to?(:to_resource)
-        entity.to_resource
-      else
-        new(entity)
-      end
-    end
-
     # Covenience factory method to get a Resource that will match all entities
     # of any type.
     #
