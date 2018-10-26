@@ -3,7 +3,7 @@
 require 'checkpoint/agent/resolver'
 
 RSpec.describe Checkpoint::Agent::Resolver do
-  let(:resolver)   { described_class.new }
+  let(:resolver) { described_class.new }
 
   describe 'expansion' do
     let(:user)       { double('user', id: 'id') }

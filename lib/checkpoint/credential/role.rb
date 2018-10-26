@@ -8,10 +8,9 @@ module Checkpoint
     # The most common use from outside Checkpoint will be by way of
     # {Checkpoint::Query::RoleGranted}, which will ask whether a given named
     # role is granted for a user. However, Role could be extended or modified
-    # to implement aliasing or hierarchy, for example
+    # to implement aliasing or hierarchy, for example.
     #
-    # More likely, though, is advising the resolution of Roles through a
-    # {Checkpoint::PermissionMapper} or implementing a custom
+    # More likely, though, is implementing a custom
     # {Checkpoint::Credential::Resolver}. Subclassing or monkey-patching Role
     # should only be necessary if the application needs to extend the actual
     # behavior of the Role objects, rather than just which ones are resolved.

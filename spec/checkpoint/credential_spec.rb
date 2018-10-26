@@ -27,6 +27,11 @@ RSpec.describe Checkpoint::Credential do
     expect(credential.id).to eq 'name'
   end
 
+  it 'returns itself when asked to convert to a credential' do
+    credential = described_class.new('name')
+    expect(credential.to_credential).to eq credential
+  end
+
   describe '#granted_by' do
     it 'returns the credential itself in an array' do
       credential = described_class.new('name')

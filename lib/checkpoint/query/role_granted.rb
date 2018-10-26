@@ -16,7 +16,7 @@ module Checkpoint
     #    to examine. Tests can validate system behavior at development time
     #    because it is static.
     #
-    # 2. Implementing a {Checkpoint::Credential::Mapper} that maps backward
+    # 2. Implementing a {Checkpoint::Credential::Resolver} that maps backward
     #    from actions to named permissions and roles that would allow them.
     #    The policy rules would only authorize actions, leaving the mapping
     #    outside to accommodate configuration or runtime modification. This has

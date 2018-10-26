@@ -48,8 +48,8 @@ module Checkpoint
       #   they have been "granted permission"
       permits.for(
         agent_resolver.expand(agent),
-        credential_resolver.resolve(credential),
-        resource_resolver.resolve(resource)
+        credential_resolver.expand(credential),
+        resource_resolver.expand(resource)
       ).any?
     end
 

@@ -26,8 +26,8 @@ RSpec.describe Checkpoint::Resource::Resolver do
 
   describe 'conversion' do
     context 'when the entity does not respond to #to_resource' do
-      let (:entity)   { double('entity', id: 'id') }
-      let (:resource) { resolver.convert(entity) }
+      let(:entity)   { double('entity', id: 'id') }
+      let(:resource) { resolver.convert(entity) }
 
       it 'converts the entity to a default Resource' do
         expect(resource).to be_a Checkpoint::Resource

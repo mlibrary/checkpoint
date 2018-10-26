@@ -26,5 +26,11 @@ Metrics/BlockLength:
     - '*.gemspec'
   ExcludedMethods: ['describe', 'context', 'xdescribe', 'xcontext']
 
+Layout/SpaceInsideBlockBraces:
+  Enabled: false
+
 Style/StringLiterals:
   Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets

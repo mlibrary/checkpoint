@@ -15,6 +15,10 @@ class FakePermits
 end
 
 RSpec.describe Checkpoint::Authority do
+  module Credential; Resolver = Checkpoint::Credential::Resolver; end
+  module Agent;      Resolver = Checkpoint::Agent::Resolver; end
+  module Resource;   Resolver = Checkpoint::Resource::Resolver; end
+
   let(:anna)    { double('User', username: 'anna', known?: true) }
   let(:katy)    { double('User', username: 'katy', known?: true) }
   let(:guest)   { double('User', username: '<guest>', known?: false) }
@@ -22,8 +26,8 @@ RSpec.describe Checkpoint::Authority do
   let(:action)  { :read }
   let(:target)  { listing }
 
-  let(:agent_resolver) { instance_double('Agent::Resolver', expand: []) }
-  let(:guest_resolver) { instance_double('Agent::Resolver', expand: ['account-type:guest']) }
+  let(:agent_resolver) { instance_double(Agent::Resolver, expand: []) }
+  let(:guest_resolver) { instance_double(Agent::Resolver, expand: ['account-type:guest']) }
 
   let(:anna_resolver) do
     instance_double(
@@ -39,14 +43,14 @@ RSpec.describe Checkpoint::Authority do
     )
   end
 
-  let(:credential_resolver) { instance_double('Credential::Resolver', resolve: []) }
-  let(:read_resolver)       { instance_double('Credential::Resolver', resolve: ['permission:read']) }
-  let(:edit_resolver)       { instance_double('Credential::Resolver', resolve: ['permission:edit']) }
+  let(:credential_resolver) { instance_double(Credential::Resolver, expand: []) }
+  let(:read_resolver)       { instance_double(Credential::Resolver, expand: ['permission:read']) }
+  let(:edit_resolver)       { instance_double(Credential::Resolver, expand: ['permission:edit']) }
 
-  let(:resource_resolver) { instance_double('Resource::Resolver', resolve: []) }
+  let(:resource_resolver) { instance_double(Resource::Resolver, expand: []) }
 
   let(:listing_resolver) do
-    instance_double('Resource::Resolver', resolve: ['listing:17', 'type:listing'])
+    instance_double(Resource::Resolver, expand: ['listing:17', 'type:listing'])
   end
 
   let(:authority) do
