@@ -25,9 +25,9 @@ module Checkpoint
     end
 
     # Grant a single permit.
-    # @return [Permit] the saved Permit
+    # @return [Permit] the saved Permit; nil if the save fails
     def permit!(agent, credential, resource)
-      permits.from(agent, credential, resource).tap(&:save)
+      permits.from(agent, credential, resource).save
     end
 
     # Delete matching permits.
