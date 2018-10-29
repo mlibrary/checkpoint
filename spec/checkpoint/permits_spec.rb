@@ -27,16 +27,16 @@ RSpec.describe Checkpoint::Permits, DB: true do
     end
 
     it "does not delete other permits" do
-      one = permits.permit!(agent, credential, resource(id: 'one'))
-      two = permits.permit!(agent, credential, resource(id: 'two'))
+      permits.permit!(agent, credential, resource(id: 'one'))
+      permit = permits.permit!(agent, credential, resource(id: 'two'))
       permits.revoke!(agent, credential, resource(id: 'one'))
 
-      expect(permits.for(agent, credential, resource(id: 'two'))).to contain_exactly(two)
+      expect(permits.for(agent, credential, resource(id: 'two'))).to contain_exactly(permit)
     end
   end
 
   context 'when storing one permit in the default zone' do
-    let!(:permit)  { permits.permit!(agent, credential, resource) }
+    let!(:permit) { permits.permit!(agent, credential, resource) }
 
     context 'and searching for it' do
       describe '#for' do

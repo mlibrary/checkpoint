@@ -38,5 +38,4 @@ RSpec.describe Checkpoint::Agent::Resolver do
       end
     end
   end
-
 end
