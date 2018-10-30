@@ -15,6 +15,9 @@ AllCops:
     - 'bin/**/*'
     - 'vendor/**/*'
 
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
 Layout/MultilineMethodDefinitionBraceLayout:
   EnforcedStyle: same_line
 
@@ -26,5 +29,17 @@ Metrics/BlockLength:
     - '*.gemspec'
   ExcludedMethods: ['describe', 'context', 'xdescribe', 'xcontext']
 
+Layout/SpaceInsideBlockBraces:
+  Enabled: false
+
+Layout/IndentArray:
+  EnforcedStyle: consistent
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 Style/StringLiterals:
   Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets

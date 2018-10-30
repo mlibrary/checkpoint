@@ -11,11 +11,12 @@ module Checkpoint
     # action is permitted for a user. However, Permission could be extended or
     # modified to implement aliasing or hierarchy, for example.
     #
-    # More likely, though, is advising the resolution of Permissions through a
-    # {Checkpoint::PermissionMapper} or implementing a custom
-    # {Checkpoint::Credential::Resolver}. Subclassing or monkey-patching Permission
-    # should only be necessary if the application needs to extend the actual
-    # behavior of the Permission objects, rather than just which ones are resolved.
+    # More likely, though, is advising the resolution of Permissions with a
+    # role map and {Checkpoint::Credential::RoleMapResolver} or implementing a
+    # custom {Checkpoint::Credential::Resolver}. Subclassing or monkey-patching
+    # Permission should only be necessary if the application needs to extend
+    # the actual behavior of the Permission objects, rather than just which
+    # ones are resolved.
     class Permission < Credential
       TYPE = 'permission'
 

@@ -10,52 +10,6 @@ RSpec.describe Checkpoint::Resource::AllOfType do
     end
   end
 
-  describe '::from' do
-    context 'with a generic entity' do
-      let(:entity)   { double('entity', class: 'Entity', id: 'id') }
-      let(:resource) { described_class.from(entity) }
-
-      it 'uses the type from the entity' do
-        expect(resource.type).to eq 'Entity'
-      end
-
-      it 'uses the ALL constant as the id' do
-        expect(resource.id).to eq Checkpoint::Resource::ALL
-      end
-    end
-
-    context 'with an entity implementing #to_resource' do
-      let(:entity)          { double('entity', to_resource: entity_resource) }
-      let(:entity_resource) { double('entity_resource', type: 'type', id: 'id') }
-      let(:resource)        { described_class.from(entity) }
-
-      it 'converts to a wildcard based on the resource given by the entity' do
-        expect(resource).to be_a described_class
-      end
-
-      it 'uses the type from the entity-provided resource' do
-        expect(resource.type).to eq 'type'
-      end
-
-      it 'uses the ALL constant as the id' do
-        expect(resource.id).to eq Checkpoint::Resource::ALL
-      end
-    end
-
-    context 'with an entity implementing #resource_type' do
-      let(:entity)   { double('entity', resource_type: 'type', id: 'id') }
-      let(:resource) { described_class.from(entity) }
-
-      it 'uses the type from the entity' do
-        expect(resource.type).to eq 'type'
-      end
-
-      it 'uses the ALL constant as the id' do
-        expect(resource.id).to eq Checkpoint::Resource::ALL
-      end
-    end
-  end
-
   describe '#eql?' do
     it 'is true for two instances with the same type' do
       resource = described_class.new('type')

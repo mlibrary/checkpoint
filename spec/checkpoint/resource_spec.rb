@@ -39,39 +39,6 @@ RSpec.describe Checkpoint::Resource do
     end
   end
 
-  describe '::from' do
-    it 'converts an entity to a resource' do
-      entity   = double('entity', id: 'id')
-      resource = described_class.from(entity)
-      expect(resource).to be_a Checkpoint::Resource
-    end
-
-    context 'with a resource implementing #to_resource' do
-      let(:entity)          { double('entity', to_resource: entity_resource) }
-      let(:entity_resource) { double('entity', type: 'Entity', id: 'id') }
-      let(:resource)        { described_class.from(entity) }
-
-      it 'lets the entity convert itself to a resource' do
-        expect(resource).to eq entity_resource
-      end
-
-      it 'does not ask the entity its #resource_type' do
-        expect(entity).not_to receive(:resource_type)
-        resource.type
-      end
-
-      it 'does not ask the entity its #resource_id' do
-        expect(entity).not_to receive(:resource_id)
-        resource.id
-      end
-
-      it 'does not ask the entity its #id' do
-        expect(entity).not_to receive(:id)
-        resource.id
-      end
-    end
-  end
-
   describe '.all' do
     let(:resource) { described_class.all }
 

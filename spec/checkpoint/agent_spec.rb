@@ -37,39 +37,6 @@ RSpec.describe Checkpoint::Agent do
     end
   end
 
-  describe '::from' do
-    it 'converts an actor to an agent' do
-      user = double('user', id: 'id')
-      agent = described_class.from(user)
-      expect(agent).to be_a Checkpoint::Agent
-    end
-
-    context 'when the actor responds to #to_agent' do
-      let(:user)       { double('user', to_agent: user_agent) }
-      let(:user_agent) { double('agent', type: 'User', id: 'id') }
-      let(:agent)      { described_class.from(user) }
-
-      it 'lets the actor convert itself to an agent' do
-        expect(agent).to eq user_agent
-      end
-
-      it 'does not call #agent_type' do
-        expect(user).not_to receive(:agent_type)
-        agent.type
-      end
-
-      it 'does not call #agent_id' do
-        expect(user).not_to receive(:agent_id)
-        agent.id
-      end
-
-      it 'does not call #id' do
-        expect(user).not_to receive(:id)
-        agent.id
-      end
-    end
-  end
-
   context 'with a generic User object' do
     let(:user)      { double('user', class: 'User', id: 'id') }
     subject(:agent) { described_class.new(user) }

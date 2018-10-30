@@ -1,87 +1,88 @@
 # frozen_string_literal: true
 
-require 'checkpoint/permission_mapper'
-
 module Checkpoint
   class Credential
-    # A Credential Resolver takes a concrete action name and resolves it into any
-    # {Credential}s that would permit the action.
+    # A Credential Resolver is the bridge between application action names
+    # and {Credential}s that would permit those actions.
     #
     # Checkpoint makes no particular demand on the credential model for an
-    # application, but offers a useful default implementation supporting
+    # application, but offers two useful default implementations supporting
     # permissions and roles. There are no default rules in Checkpoint as to which
     # permissions or roles exist and, therefore, it has no default mapping of
     # roles to permissions.
     #
-    # This default resolver can be advised about an application model using roles
-    # and permissions customized by using one or both of two extension points:
+    # This default resolver is useful for applications that only deal with
+    # permissions or model credentials in an object-oriented way (explained
+    # below). The {RoleMapResolver} supports a basic mapping pattern between
+    # named roles and permissions those roles would grant.
     #
-    #   1. Supplying a {PermissionMapper} gives a way to map action names to any
-    #      "larger" permissions (e.g., "manage" being a shorthand for all CRUD
-    #      operations on a Resource type) or roles that would grant a given
-    #      permission. This affords a rather straightforward mapping of strings
-    #      or symbols, short of building customized Credential types.
+    # More sophisticated mappings, such as those reading a configuration file
+    # or with dynamic roles and permissions defined in a database, can be
+    # implemented in a custom resolver.
     #
-    #   2. Implementing your own {Credential} types gives a way to model an
-    #      application's credentials in an object-oriented way. If the resolver
-    #      receives a {Credential} (rather than a string or symbol), it will call
-    #      `#granted_by` on it to expand it. The Credential should be sure to
-    #      include itself in the array it returns unless it is virtual and should
-    #      never be considered as granted directly.
+    # Using this default resolver, it is possible to implement your own
+    # {Credential} types to model an application's credentials in an
+    # object-oriented way. If the resolver receives a {Credential} (rather than
+    # a string or symbol), it will call `#granted_by` on it to expand it. The
+    # Credential should be sure to include itself in the array it returns
+    # unless it is virtual and should never be considered as granted directly.
     #
+    # An example of this type of modeling could be implementing named action
+    # classes that have information like labels and descriptions for display
+    # purposes in a permission management interface or messages when a user
+    # does not have sufficient permission to take that action. There might also
+    # be some inheritance such that granting something like "manage" would be a
+    # shorthand for all CRUD operations on a Resource type.
+    #
+    # Another example of a custom Credential type could be a license that would
+    # be an application object in its own right, carrying information such as
+    # the licensor and expiration date. By implementing the Credential
+    # interface, a license could be granted directly with the Checkpoint
+    # {Authority} and enforced at the policies.
+    #
+    # @see {RoleMapResolver}
     class Resolver
-      def initialize(permission_mapper: PermissionMapper.new)
-        @permission_mapper = permission_mapper
-      end
-
-      # Resolve an action into all {Credential}s that would permit it.
+      # Expand an action into all {Credential}s that would permit it.
       #
-      # When supplied a string or symbol, we call `permissions_for` and
-      # `roles_granting` on the {PermissionMapper} creating a {Permission} or
-      # {Role} for every result, returning them all in an array.
+      # Expansion first converts the action to a Credential, and then calls
+      # `#granted_by` on it.
       #
-      # When supplied a Credential, we call `#granted_by` on it and bypass the
-      # PermissionMapper. More precisely, we only check that the object responds to
-      # `#granted_by?`, but it would generally be a Credential subclass. The
-      # Credential should return an array, but we ensure the return type by
-      # wrapping and flattening.
-      #
-      # Note that the parameter name to `resolve` is `action`. This isn't a perfect
-      # name, but credentials are polymorphic such a way that there really is no
-      # better application-side term (cf. actor -> Agent, entity -> Resource). It
-      # would be something like `action_or_role`, `permission_or_role`, or a generic
-      # `credential`. Part of the naming intent here was to distinguish from the
-      # action and the ability to perform it. This inheritance relationship
-      # permissions and roles are both credential types is a distinguishing feature
-      # of Checkpoint, as opposed to models that treat permissions and roles as
-      # distinct concepts that must be granted in very different ways. A better
-      # name for this parameter may emerge over time, but it seems unlikely. The
-      # name `action` was selected because the most common and appropriate concrete
-      # thing to look for is a permission to take a named application action.
+      # Note that the parameter name is `action`, though it can accept a
+      # Credential. This is to promote the most common and recommended model:
+      # authorizing based on named application actions. However, the
+      # polymorphic and hierarchical nature of credentials means that there can
+      # be cases where expanding something like a {Role} is intentional. As an
+      # example, an administrative interface for managing roles granted to
+      # users might need to expand the roles to show inheritance, rather than
+      # checking whether a given user would be permitted to take some action.
       #
       # @param action [String|Symbol|Credential] the action name or Credential
-      #   to expand into any Credential that would grant it.
-      def resolve(action)
-        if action.respond_to?(:granted_by)
-          [action.granted_by].flatten
+      #   to expand
+      # @return [Array<Credential>] the set of Credentials, any of which would
+      #   allow the action
+      def expand(action)
+        convert(action).granted_by
+      end
+
+      # Convert an action to a Credential.
+      #
+      # This conversion is basic, assuming that actions should convert directly
+      # to permissions. For example, if `:read` or `'read'` is passed, a
+      # {Credential::Permission} with id `'read'` is returned. If the action
+      # implements `#to_credential`, that will be called and returned; the
+      # object must either extend {Credential} or implement its public methods.
+      #
+      # @param action [String|Symbol|Credential] the action name or Credential
+      #   to convert
+      # @return Credential a Credential object that would specifically allow
+      #   the action supplied
+      def convert(action)
+        if action.respond_to?(:to_credential)
+          action.to_credential
         else
-          permissions_for(action) + roles_granting(action)
+          Permission.new(action)
         end
       end
-
-      private
-
-      def permissions_for(action)
-        perms = permission_mapper.permissions_for(action)
-        perms.map { |perm| Credential::Permission.new(perm) }
-      end
-
-      def roles_granting(action)
-        roles = permission_mapper.roles_granting(action)
-        roles.map { |role| Credential::Role.new(role) }
-      end
-
-      attr_reader :permission_mapper
     end
   end
 end

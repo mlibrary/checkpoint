@@ -12,14 +12,6 @@ module Checkpoint
         @entity = AnyEntity.new
       end
 
-      # Create a wildcard Resource "from" an entity. The entity disregarded and
-      # {AnyEntity} is substituted.
-      #
-      # @return [AllOfAnyType] a wildcard Resource instance
-      def self.from(_entity)
-        new
-      end
-
       # The special ALL type
       def type
         Resource::ALL

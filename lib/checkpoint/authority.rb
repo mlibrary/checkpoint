@@ -22,10 +22,26 @@ module Checkpoint
       @permits             = permits
     end
 
-    def permits?(agent, credential, resource)
+    # Check whether there are any matching permits that would allow this actor
+    # to take the action on the target entity.
+    #
+    # The parameters are generally intended to be the most convenient forms for
+    # the application. For example, user and resource model objects would be
+    # typical in a Rails application, for the actor and entity, respectively.
+    # Using a symbol for a named action is typical.
+    #
+    # Each of these will be converted and expanded by the corresponding
+    # resolver to sets of {Agent}s, {Credential}s, and {Resource}s. In the case
+    # where you already have an Agent, Credential, or Resource, it can be
+    # passed; the expectation is that those types have an identity conversion.
+    #
+    # @param actor [Object|Agent] The person/account taking the action.
+    # @param action [Symbol|String|Credential] The action to authorize or
+    #   Credential to check for.
+    # @param entity [Object|Resource] The entity/resource to be acted upon.
+    def permits?(actor, action, entity)
       # Conceptually equivalent to:
-      #   can?(agent, action, target)
-      #   can?(current_user, 'edit', @listing)
+      #   can?(current_user, :edit, @listing)
 
       #  user   => agent tokens
       #  action => credential tokens
@@ -47,10 +63,61 @@ module Checkpoint
       #   if current_user has at least one row in each of of these columns,
       #   they have been "granted permission"
       permits.for(
-        agent_resolver.resolve(agent),
-        credential_resolver.resolve(credential),
-        resource_resolver.resolve(resource)
+        agent_resolver.expand(actor),
+        credential_resolver.expand(action),
+        resource_resolver.expand(entity)
       ).any?
+    end
+
+    # Grant a single credential to a specific actor on an entity.
+    #
+    # The parameters are converted to Agent, Credential, and Resource types,
+    # but not expanded. This allows very specific grants to be made. The
+    # default conversion of a symbol or string as the action is to a
+    # {Credential::Permission} of the same name.
+    #
+    # If you want to use more general grants (for example, for an account type
+    # rather than for a given user), you should pass a more general Agent or an
+    # object that will be converted to one. Another example would be using a
+    # wildcard Resource as the entity to grant the credential for all objects
+    # of some given type.
+    #
+    # @param actor [Object|Agent] The actor to whom the grant should be made.
+    # @param action [Symbol|String|Credential] The action or Credential to grant.
+    # @param entity [Object|Resource] The entity or Resource to which the
+    #   grant will apply.
+    # @return [Boolean] True if the grant was made; false if it failed.
+    def permit!(actor, action, entity)
+      permit = permits.permit!(
+        agent_resolver.convert(actor),
+        credential_resolver.convert(action),
+        resource_resolver.convert(entity)
+      )
+
+      !permit.nil?
+    end
+
+    # Revoke a credential from a specific actor on an entity.
+    #
+    # Like {#permit!}, the parameters are converted to Agent, Credential, and
+    # Resource types, but not expanded. This means that specific grants can be
+    # revoked without revoking more general ones. For example, if a user was
+    # granted read permission on an object, and then granted the same credential
+    # on all objects of that type, the more specific grant could be revoked
+    # individually.
+    #
+    # @param actor [Object|Agent] The actor from whom the grant should be revoked.
+    # @param action [Symbol|String|Credential] The action or Credential to revoke.
+    # @param entity [Object|Resource] The entity or Resource upon which the
+    # @return [Boolean] True if any permits were revoked; false if none were revoked.
+    def revoke!(actor, action, entity)
+      revoked = permits.revoke!(
+        agent_resolver.convert(actor),
+        credential_resolver.convert(action),
+        resource_resolver.convert(entity)
+      )
+
+      revoked.positive?
     end
 
     # Dummy authority that rejects everything

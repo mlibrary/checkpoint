@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'checkpoint/credential/resolver'
+require 'checkpoint/credential/role_map_resolver'
 require 'checkpoint/credential/role'
 require 'checkpoint/credential/permission'
 require 'checkpoint/credential/token'
-require 'checkpoint/permission_mapper'
 
 module Checkpoint
   # A Credential is the permission to take a particular action, or any
@@ -47,21 +47,34 @@ module Checkpoint
     # This is an extension mechanism for application authors needing to
     # implement hierarchical or virtual credentials and wanting to do so in
     # an object-oriented way. The default implementation is to simply return
-    # the credential itself in an array but, for example, an a custom
+    # the credential itself in an array but, for example, a custom
     # permission type could provide for aliasing by including itself and
     # another instance for the synonym. Another example is modeling permissions
     # granted by particular roles; this might be static, as defined in the
     # source files, or dynamic, as impacted by configuration or runtime data.
     #
-    # As an alternative, these rules could be implemented under a
-    # {PermissionMapper} in an application that prefers to model its credentials
-    # as strings or symbols, rather than more specialized objects.
+    # As an alternative, these rules could be implemented by using the rather
+    # straightforward {RoleMapResolver} or a custom {Credential::Resolver}.
     #
-    # @see Checkpoint::PermissionMapper
     # @return [Array<Credential>] the expanded list of credentials that would
     #   grant this one
     def granted_by
       [self]
+    end
+
+    # Convert this object to a Credential.
+    #
+    # For Checkpoint-supplied Credential types, this is an identity operation,
+    # but it allows consistent handling of the built-in types and
+    # application-supplied types that will either implement this interface or
+    # convert themselves to a built-in type. This removes the requirement to
+    # extend Checkpoint types and, in combination with `#granted_by`, allows
+    # design of an object-oriented permission model that can interoperate
+    # seamlessly with the Checkpoint constructs.
+    #
+    # @return [Credential] this credential
+    def to_credential
+      self
     end
 
     # @return [Token] a token for this credential

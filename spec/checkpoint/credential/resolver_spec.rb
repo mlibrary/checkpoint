@@ -2,147 +2,85 @@
 
 require 'checkpoint/credential/resolver'
 
-class FakeRoles
-  def permissions_for(action)
-    [action.to_sym]
-  end
-
-  def roles_granting(action)
-    case action.to_sym
-    when :edit
-      %i[editor admin]
-    else
-      []
-    end
-  end
-end
-
-class EmptyRoles
-  def permissions_for(action)
-    [action.to_sym]
-  end
-
-  def roles_granting(_action)
-    []
-  end
-end
-
 RSpec.describe Checkpoint::Credential::Resolver do
-  context "when no role permissions are defined" do
-    let(:mapper) { EmptyRoles.new }
-    subject(:resolver) { described_class.new(permission_mapper: mapper) }
+  Permission = Checkpoint::Credential::Permission
+  Role = Checkpoint::Credential::Role
 
-    context "when resolving edit" do
-      let(:edit) { build_permission(:edit) }
-      subject    { resolver.resolve(:edit) }
-
-      it "includes 'permission:edit'" do
-        is_expected.to include(edit)
-      end
-
-      it "does not include any roles" do
-        is_expected.to contain_exactly(edit)
-      end
-    end
-
-    context "when resolving read" do
-      let(:read) { build_permission(:read) }
-      subject    { resolver.resolve(:read) }
-
-      it "includes 'permission:read'" do
-        is_expected.to include(read)
-      end
-
-      it "does not include any roles" do
-        is_expected.to contain_exactly(read)
-      end
-    end
-
-    it "accepts string actions" do
-      read = build_permission(:read)
-      expect(resolver.resolve('read')).to include(read)
-    end
-
-    it "accepts symbol actions" do
-      read = build_permission(:read)
-      expect(resolver.resolve(:read)).to include(read)
+  class FakeEditor < Role
+    def initialize
+      super 'editor'
     end
   end
 
-  context "when editor and admin roles grant edit permission" do
-    let(:mapper)   { FakeRoles.new }
-    let(:resolver) { described_class.new(permission_mapper: mapper) }
-
-    context "when resolving edit" do
-      subject(:credentials) { resolver.resolve(:edit) }
-
-      it "includes 'permission:edit'" do
-        edit = build_permission(:edit)
-        expect(credentials).to include(edit)
-      end
-
-      it "includes 'role:editor'" do
-        editor = build_role(:editor)
-        expect(credentials).to include(editor)
-      end
-
-      it "includes 'role:admin'" do
-        admin = build_role(:admin)
-        expect(credentials).to include(admin)
-      end
+  class FakeRead < Permission
+    def initialize
+      super 'read'
     end
 
-    context "when resolving destroy" do
-      subject(:credentials) { resolver.resolve(:destroy) }
+    def granted_by
+      [self, FakeEditor.new]
+    end
+  end
 
-      it "includes ':edit'" do
-        destroy = build_permission(:destroy)
-        expect(credentials).to include(destroy)
-      end
+  describe 'expansion' do
+    let(:resolver) { described_class.new }
 
-      it "does not include any roles" do
-        destroy = build_permission(:destroy)
-        expect(credentials).to contain_exactly(destroy)
+    it 'yields a list of permissions' do
+      credentials = resolver.expand(:read)
+      expect(credentials).to all(be_a Permission)
+    end
+
+    it 'does not have any expansion rules itself' do
+      credentials = resolver.expand(:read)
+      expect(credentials.length).to eq 1
+    end
+
+    context 'with an object-oriented role/permission hierarchy' do
+      let(:role)        { FakeEditor.new }
+      let(:permission)  { FakeRead.new }
+      let(:credentials) { resolver.expand(permission) }
+
+      it 'allows the credential to expand itself' do
+        expect(credentials).to eq([permission, role])
       end
     end
   end
 
-  context 'when resolving a Permission object' do
-    let(:permission) { build_permission('name') }
-    let(:mapper)     { double('mapper') }
-    let(:resolver)   { described_class.new(permission_mapper: mapper) }
+  describe 'conversion' do
+    let(:resolver) { described_class.new }
 
-    it 'calls granted_by' do
-      expect(permission).to receive(:granted_by)
-      resolver.resolve(permission)
+    context 'with a symbol' do
+      let(:credential) { resolver.convert(:read) }
+
+      it 'yields a Permission' do
+        expect(credential).to be_a Permission
+      end
+
+      it 'uses the symbol converted to a string as the id' do
+        expect(credential.id).to eq 'read'
+      end
     end
 
-    it 'does not call permissions_for on the mapper' do
-      expect(mapper).not_to receive(:permissions_for)
-      resolver.resolve(permission)
+    context 'with a string' do
+      let(:credential) { resolver.convert('read') }
+
+      it 'yields a Permission' do
+        expect(credential).to be_a Permission
+      end
+
+      it 'uses the string as the id' do
+        expect(credential.id).to eq 'read'
+      end
     end
 
-    it 'does not call roles_granting on the mapper' do
-      expect(mapper).not_to receive(:roles_granting)
-      resolver.resolve(permission)
+    context 'with an action that implements #to_credential' do
+      let(:license)    { double('credential', type: 'license', id: 'drive') }
+      let(:action)     { double('action', to_credential: license) }
+      let(:credential) { resolver.convert(action) }
+
+      it 'yields the custom credential' do
+        expect(credential).to be license
+      end
     end
-  end
-
-  context 'when resolving anything that implements #granted_by' do
-    let(:credential) { double('credential', granted_by: ['foo']) }
-    let(:resolver)   { described_class.new }
-
-    it 'calls granted_by' do
-      expect(credential).to receive(:granted_by)
-      resolver.resolve(credential)
-    end
-  end
-
-  def build_permission(permission)
-    Checkpoint::Credential::Permission.new(permission)
-  end
-
-  def build_role(role)
-    Checkpoint::Credential::Role.new(role)
   end
 end
