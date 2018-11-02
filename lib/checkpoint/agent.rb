@@ -30,6 +30,17 @@ module Checkpoint
       @actor = actor
     end
 
+    # Convert this object to an Agent.
+    #
+    # For Checkpoint-supplied Agents, this is an identity operation,
+    # but it allows consistent handling of the built-in types and
+    # application-supplied types that will either implement this interface or
+    # convert themselves to a built-in type. This removes the requirement to
+    # extend Checkpoint types or bind to a specific conversion method.
+    def to_agent
+      self
+    end
+
     # Get the wrapped actor's type.
     #
     # If the actor implements `#agent_type`, we will return that. Otherwise,

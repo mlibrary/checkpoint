@@ -13,6 +13,12 @@ RSpec.describe Checkpoint::Resource do
     end
   end
 
+  it 'returns itself when asked to convert to a resource' do
+    entity   = double('entity', id: 'id')
+    resource = described_class.new(entity)
+    expect(resource.to_resource).to be resource
+  end
+
   context 'with an entity that has no usable identifier' do
     it 'raises an error' do
       expect do

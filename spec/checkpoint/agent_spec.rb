@@ -11,6 +11,12 @@ RSpec.describe Checkpoint::Agent do
     end
   end
 
+  it 'returns itself when asked to convert to an agent' do
+    user  = double('user', id: 'id')
+    agent = described_class.new(user)
+    expect(agent.to_agent).to be agent
+  end
+
   context 'with an actor that has no usable identifier' do
     it 'raises an error' do
       expect do
