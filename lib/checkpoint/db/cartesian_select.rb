@@ -2,32 +2,31 @@
 
 module Checkpoint
   module DB
-    # A query object based on agents, credentials, and resources.
+    # Helper for querying by cross-products across sets of parameters,
+    # especially for grants.
     #
-    # This query mirrors the essence of the Checkpoint semantics; that is, it
-    # finds permits for any supplied agent, for any supplied credential, for
-    # any supplied resource.
+    # This class is called CartesianSelect because the logical search space is
+    # the Cartesian product, for example, of agents X credentials X resources.
+    # All permits in that space would be selected.
     #
-    # The class is called CartesianSelect because the logical search space is
-    # the Cartesian product of the supplied agents X credentials X resources.
-    # All permits in that space are selected.
+    # This is a base class to support convenient variations for searching in
+    # different scenarios. It is unlikely to be very useful in its own right,
+    # but provides structure for specific subclasses. For example, {Query::ACR}
+    # searches for grants when agents, credentials, and resources are all
+    # known, as when checking authorization. When seeking to list agents that
+    # could take a given action on a resource, {Query::CR} would be useful.
     #
-    # This is ultimately implemented as an IN clause for each token type
-    # containing all members of that type: one for agent_token, one for
-    # credential_token, and one for resource_token.
+    # Subclasses should extends the conditions and parameters methods to supply
+    # the placeholders and matching values. The {Params} class is helpful for
+    # that purpose.
     #
-    # This is a separate class because assembling placeholder variables and
-    # binding expressions in the way Sequel expects them is relatively
-    # complicated in its own right. It can take single items or arrays and
-    # converts them all to their tokens for query purposes.
+    # The queries are ultimately implemented with an IN clause for each key in
+    # the conditions with binding expressions in the way Sequel expects them.
     class CartesianSelect
-      attr_reader :agents, :credentials, :resources, :scope
+      attr_reader :scope
 
-      def initialize(agents, credentials, resources, scope: Checkpoint::DB::Permit)
-        @agents      = tokenize(agents)
-        @credentials = tokenize(credentials)
-        @resources   = tokenize(resources)
-        @scope       = scope
+      def initialize(scope: Permit)
+        @scope = scope
       end
 
       def query
@@ -48,30 +47,14 @@ module Checkpoint
 
       def conditions
         {
-          agent_token:      agent_params.placeholders,
-          credential_token: credential_params.placeholders,
-          resource_token:   resource_params.placeholders,
           zone_id: :$zone_id
         }
       end
 
       def parameters
-        (agent_params.values +
-         credential_params.values +
-         resource_params.values +
-         [[:zone_id, DB::Permit.default_zone]]).to_h
-      end
-
-      def agent_params
-        Params.new(agents, 'at')
-      end
-
-      def credential_params
-        Params.new(credentials, 'ct')
-      end
-
-      def resource_params
-        Params.new(resources, 'rt')
+        {
+          zone_id: Permit.default_zone
+        }
       end
 
       private

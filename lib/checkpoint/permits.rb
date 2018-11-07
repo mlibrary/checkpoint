@@ -60,7 +60,7 @@ module Checkpoint
     private
 
     def where(agents, credentials, resources)
-      DB::CartesianSelect.new(agents, credentials, resources, scope: permits)
+      DB::Query::ACR.new(agents, credentials, resources, scope: permits)
     end
 
     attr_reader :permits
