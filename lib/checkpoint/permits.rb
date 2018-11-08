@@ -24,6 +24,42 @@ module Checkpoint
       where(agents, credentials, resources).first != nil
     end
 
+    # Find grants of the given credentials on the given resources.
+    #
+    # This is useful for finding who should have particular access. Note that
+    # this low-level interface returns the full grants, rather than a unique
+    # set of agents.
+    #
+    # @return [Array<Permit>] the set of grants of any of the credentials on
+    #   any of the resources
+    def who(credentials, resources)
+      DB::Query::CR.new(credentials, resources, **scope).all
+    end
+
+    # Find grants to the given agents on the given resources.
+    #
+    # This is useful for finding what actions may be taken on particular items.
+    # Note that this low-level interface returns the full grants, rather than a
+    # unique set of credentials.
+    #
+    # @return [Array<Permit>] the set of grants to any of the agents on any of
+    #   the resources
+    def what(agents, resources)
+      DB::Query::AR.new(agents, resources, **scope).all
+    end
+
+    # Find grants to the given agents of the given credentials.
+    #
+    # This is useful for finding which resources may acted upon. Note that this
+    # low-level interface returns the full grants, rather than a unique set of
+    # resources.
+    #
+    # @return [Array<Permit>] the set of grants of any of the credentials to
+    #   any of the agents
+    def which(agents, credentials)
+      DB::Query::AC.new(agents, credentials, **scope).all
+    end
+
     # Grant a single permit.
     # @return [Permit] the saved Permit; nil if the save fails
     def permit!(agent, credential, resource)
@@ -59,8 +95,12 @@ module Checkpoint
 
     private
 
+    def scope
+      { scope: permits }
+    end
+
     def where(agents, credentials, resources)
-      DB::Query::ACR.new(agents, credentials, resources, scope: permits)
+      DB::Query::ACR.new(agents, credentials, resources, **scope)
     end
 
     attr_reader :permits
