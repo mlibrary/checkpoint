@@ -84,12 +84,11 @@ module Checkpoint
       other.is_a?(Agent) && actor.eql?(other.actor)
     end
 
-    # Check whether two Agents refer to the same concrete actor.
+    # Check whether two Agents refer to the same concrete actor by type and id.
     # @param other [Agent] Another Agent to compare with
-    # @return [Boolean] true when the other Agent's actor is the same as
-    #   determined by comparing them with `==`.
+    # @return [Boolean] true when the other Agent's type and id are equal.
     def ==(other)
-      other.is_a?(Agent) && actor == other.actor
+      other.is_a?(Agent) && type == other.type && id == other.id
     end
   end
 end

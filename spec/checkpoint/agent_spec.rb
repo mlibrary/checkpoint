@@ -137,13 +137,12 @@ RSpec.describe Checkpoint::Agent do
       expect(agent1).to eq(agent2)
     end
 
-    it 'uses == to compare the entities' do
-      actor1 = double('actor', class: 'User', id: 'id')
-      actor2 = double('actor', class: 'User', id: 'id')
+    it 'is true when the type and id match, disregarding actor class' do
+      actor1 = double('actor', agent_type: 'User', id: 'id')
+      actor2 = double('user',  agent_type: 'User', id: 'id')
       agent1 = described_class.new(actor1)
       agent2 = described_class.new(actor2)
 
-      allow(actor1).to receive(:==).with(actor2).and_return(true)
       expect(agent1).to eq(agent2)
     end
 

@@ -125,12 +125,11 @@ module Checkpoint
       other.is_a?(Resource) && entity.eql?(other.entity)
     end
 
-    # Check whether two Resources refer to the same entity.
+    # Check whether two Resources refer to the same entity by type and id.
     # @param other [Resource] Another Resource to compare with
-    # @return [Boolean] true when the other Resource's entity is the same as
-    #   determined by comparing them with `#==`.
+    # @return [Boolean] true when the other Resource's type and id are equal.
     def ==(other)
-      other.is_a?(Resource) && entity == other.entity
+      other.is_a?(Resource) && type == other.type && id == other.id
     end
   end
 end
