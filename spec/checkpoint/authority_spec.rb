@@ -164,5 +164,53 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
         end
       end
     end
+
+    describe 'finding agents (who)' do
+      # These specs are more integration-oriented, relying on default resolver
+      # conversion/expansion to reduce the complexity of the harness.
+      let(:authority)  { described_class.new(permits: repository) }
+      let(:repository) { instance_double(Permits, who: permits) }
+
+      let(:entity) { double('entity', resource_type: 'entity', id: 'eid') }
+
+      context 'with a single user granted permission' do
+        let(:permits)    { [agent_permit] }
+        let(:token)      { agent_token }
+        subject(:tokens) { authority.who(:read, listing) }
+
+        it 'gives one token for the user' do
+          expect(tokens).to contain_exactly(token)
+        end
+      end
+
+      context 'with multiple grants for a user' do
+        let(:permits)    { [agent_permit, agent_permit] }
+        let(:token)      { agent_token }
+        subject(:tokens) { authority.who(:read, listing) }
+
+        it 'gives a single token for the user' do
+          expect(tokens).to contain_exactly(token)
+        end
+      end
+
+      context 'with grants for two different users' do
+        let(:permits)    { [agent_permit(id: 'one'), agent_permit(id: 'two')] }
+        let(:one)        { agent_token(id: 'one') }
+        let(:two)        { agent_token(id: 'two') }
+        subject(:tokens) { authority.who(:read, listing) }
+
+        it 'gives a token for each user' do
+          expect(tokens).to contain_exactly(one, two)
+        end
+      end
+    end
+
+    def agent_permit(type: 'user', id: 'id')
+      instance_double(DB::Permit, agent_type: type, agent_id: id)
+    end
+
+    def agent_token(type: 'user', id: 'id')
+      Agent::Token.new(type, id)
+    end
   end
 end

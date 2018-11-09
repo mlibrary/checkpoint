@@ -69,6 +69,21 @@ module Checkpoint
       ).any?
     end
 
+    # Find agents who have grants to take an action on an entity.
+    #
+    # The action and entity are expanded for matching more general grants.
+    #
+    # @return [Array<Agent::Token>] The distinct set of tokens for agents permitted to
+    #   take the given action on the given entity
+    def who(action, entity)
+      credentials = credential_resolver.expand(action)
+      resources = resource_resolver.expand(entity)
+
+      permits.who(credentials, resources).map do |permit|
+        Agent::Token.new(permit.agent_type, permit.agent_id)
+      end.uniq
+    end
+
     # Grant a single credential to a specific actor on an entity.
     #
     # The parameters are converted to Agent, Credential, and Resource types,
