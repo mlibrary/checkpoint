@@ -171,12 +171,10 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       let(:authority)  { described_class.new(permits: repository) }
       let(:repository) { instance_double(Permits, who: permits) }
 
-      let(:entity) { double('entity', resource_type: 'entity', id: 'eid') }
-
       context 'with a single user granted permission' do
         let(:permits)    { [agent_permit] }
         let(:token)      { agent_token }
-        subject(:tokens) { authority.who(:read, listing) }
+        subject(:tokens) { authority.who(:read, double('entity')) }
 
         it 'gives one token for the user' do
           expect(tokens).to contain_exactly(token)
@@ -205,12 +203,104 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
     end
 
+    describe 'finding resources (which)' do
+      # These specs are more integration-oriented, relying on default resolver
+      # conversion/expansion to reduce the complexity of the harness.
+      let(:authority)  { described_class.new(permits: repository) }
+      let(:repository) { instance_double(Permits, which: permits) }
+
+      context 'with a single resource granted' do
+        let(:permits)    { [resource_permit] }
+        let(:token)      { resource_token }
+        subject(:tokens) { authority.which(double('user'), :read) }
+
+        it 'gives one token for the resource' do
+          expect(tokens).to contain_exactly(token)
+        end
+      end
+
+      context 'with multiple grants for a resource' do
+        let(:permits)    { [resource_permit, resource_permit] }
+        let(:token)      { resource_token }
+        subject(:tokens) { authority.which(double('user'), :read) }
+
+        it 'gives a single token for the resource' do
+          expect(tokens).to contain_exactly(token)
+        end
+      end
+
+      context 'with grants for two different users' do
+        let(:permits)    { [resource_permit(id: 'one'), resource_permit(id: 'two')] }
+        let(:one)        { resource_token(id: 'one') }
+        let(:two)        { resource_token(id: 'two') }
+        subject(:tokens) { authority.which(double('user'), :read) }
+
+        it 'gives a token for each user' do
+          expect(tokens).to contain_exactly(one, two)
+        end
+      end
+    end
+
+    describe 'finding credentials (what)' do
+      # These specs are more integration-oriented, relying on default resolver
+      # conversion/expansion to reduce the complexity of the harness.
+      let(:authority)  { described_class.new(permits: repository) }
+      let(:repository) { instance_double(Permits, what: permits) }
+
+      context 'with a single credential granted' do
+        let(:permits)    { [credential_permit] }
+        let(:token)      { credential_token }
+        subject(:tokens) { authority.what(double('user'), double('entity')) }
+
+        it 'gives one token for the credential' do
+          expect(tokens).to contain_exactly(token)
+        end
+      end
+
+      context 'with multiple grants of the same credential' do
+        let(:permits)    { [credential_permit, credential_permit] }
+        let(:token)      { credential_token }
+        subject(:tokens) { authority.what(double('user'), double('entity')) }
+
+        it 'gives a single token for the credential' do
+          expect(tokens).to contain_exactly(token)
+        end
+      end
+
+      context 'with grants for two different users' do
+        let(:permits)    { [credential_permit(id: 'read'), credential_permit(id: 'edit')] }
+        let(:one)        { credential_token(id: 'read') }
+        let(:two)        { credential_token(id: 'edit') }
+        subject(:tokens) { authority.what(double('user'), double('entity')) }
+
+        it 'gives a token for each credential' do
+          expect(tokens).to contain_exactly(one, two)
+        end
+      end
+    end
+
     def agent_permit(type: 'user', id: 'id')
       instance_double(DB::Permit, agent_type: type, agent_id: id)
     end
 
     def agent_token(type: 'user', id: 'id')
       Agent::Token.new(type, id)
+    end
+
+    def credential_permit(type: 'permission', id: 'read')
+      instance_double(DB::Permit, credential_type: type, credential_id: id)
+    end
+
+    def credential_token(type: 'permission', id: 'read')
+      Credential::Token.new(type, id)
+    end
+
+    def resource_permit(type: 'entity', id: 'id')
+      instance_double(DB::Permit, resource_type: type, resource_id: id)
+    end
+
+    def resource_token(type: 'entity', id: 'id')
+      Resource::Token.new(type, id)
     end
   end
 end
