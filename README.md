@@ -19,6 +19,11 @@ And then execute:
 
     $ bundle
 
+## Documentation
+
+User documentation source is available in the `docs` directory, and in rendered format
+on [readthedocs](https://checkpoint.readthedocs.io/en/latest/).
+
 ## License
 
 Checkpoint is licensed under the BSD-3-Clause license. See [LICENSE.md](LICENSE.md).
