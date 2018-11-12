@@ -5,11 +5,11 @@ require 'checkpoint/agent/token'
 
 module Checkpoint
   # An Agent is an any person or entity that might be granted various
-  # permission, such as a user, group, or institution.
+  # credentials, such as a user, group, or institution.
   #
   # The application objects that an agent represents may be of any type; this
   # is more of an interface or role than a base class. The important concept is
-  # that permits are granted to agents, and that agents may be representative
+  # that credentials are granted to agents, and that agents may be representative
   # of multiple concrete actors, such as any person affiliated with a given
   # institution or any member of a given group.
   #

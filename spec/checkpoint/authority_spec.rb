@@ -3,7 +3,7 @@
 require 'checkpoint/authority'
 
 module Checkpoint # rubocop:disable Metrics/ModuleLength
-  class FakePermits
+  class FakeGrants
     def for(subjects, credentials, _resources)
       if credentials.include?('permission:edit') && subjects.include?('user:anna')
         [['user:anna', 'permission:edit', 'listing:17']]
@@ -50,14 +50,14 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       instance_double(Resource::Resolver, expand: ['listing:17', 'type:listing'])
     end
 
-    let(:repository) { FakePermits.new }
+    let(:repository) { FakeGrants.new }
 
     let(:authority) do
       Checkpoint::Authority.new(
         agent_resolver: agent_resolver,
         credential_resolver: credential_resolver,
         resource_resolver:  resource_resolver,
-        permits: repository
+        grants: repository
       )
     end
 
@@ -144,18 +144,18 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       let(:credential_resolver) { instance_double(Credential::Resolver, convert: credential) }
       let(:resource_resolver)   { instance_double(Resource::Resolver, convert: resource) }
 
-      describe 'permit!' do
-        it 'saves a permit to the repository' do
-          expect(repository).to receive(:permit!)
+      describe 'grant!' do
+        it 'saves a grant to the repository' do
+          expect(repository).to receive(:grant!)
             .with(agent, credential, resource)
-            .and_return(double('Permit'))
+            .and_return(double('Grant'))
 
-          authority.permit!(actor, action, entity)
+          authority.grant!(actor, action, entity)
         end
       end
 
       describe 'revoke!' do
-        it 'deletes the permit from the repository' do
+        it 'deletes the grant from the repository' do
           expect(repository).to receive(:revoke!)
             .with(agent, credential, resource)
             .and_return(1)
@@ -168,11 +168,11 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
     describe 'finding agents (who)' do
       # These specs are more integration-oriented, relying on default resolver
       # conversion/expansion to reduce the complexity of the harness.
-      let(:authority)  { described_class.new(permits: repository) }
-      let(:repository) { instance_double(Permits, who: permits) }
+      let(:authority)  { described_class.new(grants: repository) }
+      let(:repository) { instance_double(Grants, who: grants) }
 
       context 'with a single user granted permission' do
-        let(:permits)    { [agent_permit] }
+        let(:grants)    { [agent_grant] }
         let(:token)      { agent_token }
         subject(:tokens) { authority.who(:read, double('entity')) }
 
@@ -182,7 +182,7 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
 
       context 'with multiple grants for a user' do
-        let(:permits)    { [agent_permit, agent_permit] }
+        let(:grants)    { [agent_grant, agent_grant] }
         let(:token)      { agent_token }
         subject(:tokens) { authority.who(:read, listing) }
 
@@ -192,7 +192,7 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
 
       context 'with grants for two different users' do
-        let(:permits)    { [agent_permit(id: 'one'), agent_permit(id: 'two')] }
+        let(:grants)    { [agent_grant(id: 'one'), agent_grant(id: 'two')] }
         let(:one)        { agent_token(id: 'one') }
         let(:two)        { agent_token(id: 'two') }
         subject(:tokens) { authority.who(:read, listing) }
@@ -206,11 +206,11 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
     describe 'finding resources (which)' do
       # These specs are more integration-oriented, relying on default resolver
       # conversion/expansion to reduce the complexity of the harness.
-      let(:authority)  { described_class.new(permits: repository) }
-      let(:repository) { instance_double(Permits, which: permits) }
+      let(:authority)  { described_class.new(grants: repository) }
+      let(:repository) { instance_double(Grants, which: grants) }
 
       context 'with a single resource granted' do
-        let(:permits)    { [resource_permit] }
+        let(:grants)    { [resource_grant] }
         let(:token)      { resource_token }
         subject(:tokens) { authority.which(double('user'), :read) }
 
@@ -220,7 +220,7 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
 
       context 'with multiple grants for a resource' do
-        let(:permits)    { [resource_permit, resource_permit] }
+        let(:grants)    { [resource_grant, resource_grant] }
         let(:token)      { resource_token }
         subject(:tokens) { authority.which(double('user'), :read) }
 
@@ -230,7 +230,7 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
 
       context 'with grants for two different users' do
-        let(:permits)    { [resource_permit(id: 'one'), resource_permit(id: 'two')] }
+        let(:grants)    { [resource_grant(id: 'one'), resource_grant(id: 'two')] }
         let(:one)        { resource_token(id: 'one') }
         let(:two)        { resource_token(id: 'two') }
         subject(:tokens) { authority.which(double('user'), :read) }
@@ -244,11 +244,11 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
     describe 'finding credentials (what)' do
       # These specs are more integration-oriented, relying on default resolver
       # conversion/expansion to reduce the complexity of the harness.
-      let(:authority)  { described_class.new(permits: repository) }
-      let(:repository) { instance_double(Permits, what: permits) }
+      let(:authority)  { described_class.new(grants: repository) }
+      let(:repository) { instance_double(Grants, what: grants) }
 
       context 'with a single credential granted' do
-        let(:permits)    { [credential_permit] }
+        let(:grants)    { [credential_grant] }
         let(:token)      { credential_token }
         subject(:tokens) { authority.what(double('user'), double('entity')) }
 
@@ -258,7 +258,7 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
 
       context 'with multiple grants of the same credential' do
-        let(:permits)    { [credential_permit, credential_permit] }
+        let(:grants)    { [credential_grant, credential_grant] }
         let(:token)      { credential_token }
         subject(:tokens) { authority.what(double('user'), double('entity')) }
 
@@ -268,7 +268,7 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
 
       context 'with grants for two different users' do
-        let(:permits)    { [credential_permit(id: 'read'), credential_permit(id: 'edit')] }
+        let(:grants)    { [credential_grant(id: 'read'), credential_grant(id: 'edit')] }
         let(:one)        { credential_token(id: 'read') }
         let(:two)        { credential_token(id: 'edit') }
         subject(:tokens) { authority.what(double('user'), double('entity')) }
@@ -279,24 +279,24 @@ module Checkpoint # rubocop:disable Metrics/ModuleLength
       end
     end
 
-    def agent_permit(type: 'user', id: 'id')
-      instance_double(DB::Permit, agent_type: type, agent_id: id)
+    def agent_grant(type: 'user', id: 'id')
+      instance_double(DB::Grant, agent_type: type, agent_id: id)
     end
 
     def agent_token(type: 'user', id: 'id')
       Agent::Token.new(type, id)
     end
 
-    def credential_permit(type: 'permission', id: 'read')
-      instance_double(DB::Permit, credential_type: type, credential_id: id)
+    def credential_grant(type: 'permission', id: 'read')
+      instance_double(DB::Grant, credential_type: type, credential_id: id)
     end
 
     def credential_token(type: 'permission', id: 'read')
       Credential::Token.new(type, id)
     end
 
-    def resource_permit(type: 'entity', id: 'id')
-      instance_double(DB::Permit, resource_type: type, resource_id: id)
+    def resource_grant(type: 'entity', id: 'id')
+      instance_double(DB::Grant, resource_type: type, resource_id: id)
     end
 
     def resource_token(type: 'entity', id: 'id')

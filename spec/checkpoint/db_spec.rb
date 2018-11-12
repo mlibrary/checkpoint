@@ -72,7 +72,7 @@ RSpec.describe Checkpoint::DB do
       db = Sequel.sqlite
       Checkpoint::DB.connect!(db: db)
       Checkpoint::DB.migrate!
-      expect(db[:permits].columns).to_not be nil
+      expect(db[:grants].columns).to_not be nil
     end
   end
 

@@ -7,7 +7,7 @@ module Checkpoint
     #
     # This class is called CartesianSelect because the logical search space is
     # the Cartesian product, for example, of agents X credentials X resources.
-    # All permits in that space would be selected.
+    # All grants in that space would be selected.
     #
     # This is a base class to support convenient variations for searching in
     # different scenarios. It is unlikely to be very useful in its own right,
@@ -25,7 +25,7 @@ module Checkpoint
     class CartesianSelect
       attr_reader :scope
 
-      def initialize(scope: Permit)
+      def initialize(scope: Grant)
         @scope = scope
       end
 
@@ -53,7 +53,7 @@ module Checkpoint
 
       def parameters
         {
-          zone_id: Permit.default_zone
+          zone_id: Grant.default_zone
         }
       end
 

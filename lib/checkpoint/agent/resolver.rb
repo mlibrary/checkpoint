@@ -10,9 +10,9 @@ module Checkpoint
     # - Conversion maps an actor to a single Agent
     # - Expansion maps an actor to all of the Agents it represents
     #
-    # These allow Permits to be granted, matched, or revoked with the
-    # appropriate semantics, depending on the operation. In general, a Permit
-    # is granted to or revoked from a single Agent, while matching is applied
+    # These allow credentials to be granted, matched, or revoked with the
+    # appropriate semantics, depending on the operation. In general, a Grant
+    # is given to or revoked from a single Agent, while matching is applied
     # to all Agents the actor represents.
     #
     # This implementation does not implement any expansion semantics other

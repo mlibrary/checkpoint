@@ -2,7 +2,7 @@
 
 Sequel.migration do
   change do
-    create_table :permits do
+    create_table :grants do
       primary_key :id
       column :agent_type,       String, size: 100, null: false
       column :agent_id,         String, size: 100, null: false

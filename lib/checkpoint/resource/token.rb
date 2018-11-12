@@ -5,9 +5,9 @@ require 'checkpoint/resource/resolver'
 module Checkpoint
   class Resource
     # A Resource::Token is an identifier object for a Resource. It includes a
-    # type and an identifier. A {Permit} can be granted for a Token. Concrete
+    # type and an identifier. A {Grant} can be created for a Token. Concrete
     # entities are resolved into a number of resources, and those resources'
-    # tokens will be checked for matching permits.
+    # tokens will be checked for matching grants.
     class Token
       attr_reader :type, :id
 

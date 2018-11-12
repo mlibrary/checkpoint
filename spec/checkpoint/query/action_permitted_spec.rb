@@ -25,7 +25,7 @@ RSpec.describe Checkpoint::Query::ActionPermitted do
     expect(check.true?).to be false
   end
 
-  context 'when there is no matching permit' do
+  context 'when there is no matching grant' do
     let(:authority) { double('authority', permits?: false) }
     subject(:check) do
       described_class.new(user, action, target, authority: authority)
@@ -36,7 +36,7 @@ RSpec.describe Checkpoint::Query::ActionPermitted do
     end
   end
 
-  context 'when there is a matching permit' do
+  context 'when there is a matching grant' do
     let(:authority) { double('authority', permits?: true) }
     subject(:check) do
       described_class.new(user, action, target, authority: authority)
