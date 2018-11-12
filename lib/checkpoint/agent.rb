@@ -30,6 +30,17 @@ module Checkpoint
       @actor = actor
     end
 
+    # Convert this object to an Agent.
+    #
+    # For Checkpoint-supplied Agents, this is an identity operation,
+    # but it allows consistent handling of the built-in types and
+    # application-supplied types that will either implement this interface or
+    # convert themselves to a built-in type. This removes the requirement to
+    # extend Checkpoint types or bind to a specific conversion method.
+    def to_agent
+      self
+    end
+
     # Get the wrapped actor's type.
     #
     # If the actor implements `#agent_type`, we will return that. Otherwise,
@@ -73,12 +84,11 @@ module Checkpoint
       other.is_a?(Agent) && actor.eql?(other.actor)
     end
 
-    # Check whether two Agents refer to the same concrete actor.
+    # Check whether two Agents refer to the same concrete actor by type and id.
     # @param other [Agent] Another Agent to compare with
-    # @return [Boolean] true when the other Agent's actor is the same as
-    #   determined by comparing them with `==`.
+    # @return [Boolean] true when the other Agent's type and id are equal.
     def ==(other)
-      other.is_a?(Agent) && actor == other.actor
+      other.is_a?(Agent) && type == other.type && id == other.id
     end
   end
 end

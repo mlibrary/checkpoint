@@ -87,5 +87,13 @@ module Checkpoint
         expect(agent1).not_to eq(agent2)
       end
     end
+
+    describe "#hash" do
+      it 'gives the same value for equal tokens' do
+        agent1 = described_class.new('some-type', 'some-id')
+        agent2 = described_class.new('some-type', 'some-id')
+        expect(agent1.hash).to eq(agent2.hash)
+      end
+    end
   end
 end

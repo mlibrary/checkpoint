@@ -4,6 +4,13 @@ require 'ostruct'
 require 'logger'
 require 'yaml'
 
+require_relative 'db/cartesian_select'
+require_relative 'db/params'
+require_relative 'db/query/acr'
+require_relative 'db/query/ac'
+require_relative 'db/query/ar'
+require_relative 'db/query/cr'
+
 module Checkpoint
   # Module for everything related to the Checkpoint database.
   module DB

@@ -24,6 +24,42 @@ module Checkpoint
       where(agents, credentials, resources).first != nil
     end
 
+    # Find grants of the given credentials on the given resources.
+    #
+    # This is useful for finding who should have particular access. Note that
+    # this low-level interface returns the full grants, rather than a unique
+    # set of agents.
+    #
+    # @return [Array<Permit>] the set of grants of any of the credentials on
+    #   any of the resources
+    def who(credentials, resources)
+      DB::Query::CR.new(credentials, resources, **scope).all
+    end
+
+    # Find grants to the given agents on the given resources.
+    #
+    # This is useful for finding what actions may be taken on particular items.
+    # Note that this low-level interface returns the full grants, rather than a
+    # unique set of credentials.
+    #
+    # @return [Array<Permit>] the set of grants to any of the agents on any of
+    #   the resources
+    def what(agents, resources)
+      DB::Query::AR.new(agents, resources, **scope).all
+    end
+
+    # Find grants to the given agents of the given credentials.
+    #
+    # This is useful for finding which resources may acted upon. Note that this
+    # low-level interface returns the full grants, rather than a unique set of
+    # resources.
+    #
+    # @return [Array<Permit>] the set of grants of any of the credentials to
+    #   any of the agents
+    def which(agents, credentials)
+      DB::Query::AC.new(agents, credentials, **scope).all
+    end
+
     # Grant a single permit.
     # @return [Permit] the saved Permit; nil if the save fails
     def permit!(agent, credential, resource)
@@ -59,124 +95,14 @@ module Checkpoint
 
     private
 
+    def scope
+      { scope: permits }
+    end
+
     def where(agents, credentials, resources)
-      CartesianSelect.new(agents, credentials, resources, scope: permits)
+      DB::Query::ACR.new(agents, credentials, resources, **scope)
     end
 
     attr_reader :permits
-
-    # A query object based on agents, credentials, and resources.
-    #
-    # This query mirrors the essence of the Checkpoint semantics; that is, it
-    # finds permits for any supplied agent, for any supplied credential, for
-    # any supplied resource.
-    #
-    # The class is called CartesianSelect because the logical search space is
-    # the Cartesian product of the supplied agents X credentials X resources.
-    # All permits in that space are selected.
-    #
-    # This is ultimately implemented as an IN clause for each token type
-    # containing all members of that type: one for agent_token, one for
-    # credential_token, and one for resource_token.
-    #
-    # This is a separate class because assembling placeholder variables and
-    # binding expressions in the way Sequel expects them is relatively
-    # complicated in its own right. It can take single items or arrays and
-    # converts them all to their tokens for query purposes.
-    class CartesianSelect
-      attr_reader :agents, :credentials, :resources, :scope
-
-      def initialize(agents, credentials, resources, scope: Checkpoint::DB::Permit)
-        @agents      = tokenize(agents)
-        @credentials = tokenize(credentials)
-        @resources   = tokenize(resources)
-        @scope       = scope
-      end
-
-      def query
-        scope.where(conditions)
-      end
-
-      def all
-        exec(:select)
-      end
-
-      def first
-        exec(:first)
-      end
-
-      def delete
-        exec(:delete)
-      end
-
-      def conditions
-        {
-          agent_token:      agent_params.placeholders,
-          credential_token: credential_params.placeholders,
-          resource_token:   resource_params.placeholders,
-          zone_id: :$zone_id
-        }
-      end
-
-      def parameters
-        (agent_params.values +
-         credential_params.values +
-         resource_params.values +
-         [[:zone_id, DB::Permit.default_zone]]).to_h
-      end
-
-      def agent_params
-        Params.new(agents, 'at')
-      end
-
-      def credential_params
-        Params.new(credentials, 'ct')
-      end
-
-      def resource_params
-        Params.new(resources, 'rt')
-      end
-
-      private
-
-      def exec(mode)
-        query.call(mode, parameters)
-      end
-
-      def tokenize(collection)
-        [collection].flatten.map(&:token)
-      end
-    end
-
-    # A helper for building placeholder variable names from items in a list and
-    # providing a corresponding hash of values. A prefix with some mnemonic
-    # corresponding to the column is recommended. For example, if the column is
-    # `agent_token`, using the prefix `at` will yield `$at_0`, `$at_1`, etc. for
-    # an IN clause.
-    class Params
-      attr_reader :items, :prefix
-
-      def initialize(items, prefix)
-        @items  = [items].flatten
-        @prefix = prefix
-      end
-
-      def placeholders
-        0.upto(items.size - 1).map do |i|
-          :"$#{prefix}_#{i}"
-        end
-      end
-
-      def values
-        items.map.with_index do |item, i|
-          value = if item.respond_to?(:sql_value)
-                    item.sql_value
-                  else
-                    item.to_s
-                  end
-          [:"#{prefix}_#{i}", value]
-        end
-      end
-    end
   end
 end

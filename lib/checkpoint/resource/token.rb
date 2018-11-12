@@ -58,6 +58,11 @@ module Checkpoint
         other.is_a?(Resource::Token) && type == other.type && id == other.id
       end
 
+      # @return [Integer] hash code based on to_s
+      def hash
+        to_s.hash
+      end
+
       alias == eql?
       alias inspect uri
     end

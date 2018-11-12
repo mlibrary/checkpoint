@@ -54,6 +54,17 @@ module Checkpoint
       AllOfAnyType.new
     end
 
+    # Convert this object to a Resource.
+    #
+    # For Checkpoint-supplied Resources, this is an identity operation,
+    # but it allows consistent handling of the built-in types and
+    # application-supplied types that will either implement this interface or
+    # convert themselves to a built-in type. This removes the requirement to
+    # extend Checkpoint types or bind to a specific conversion method.
+    def to_resource
+      self
+    end
+
     # Get the resource type.
     #
     # Note that this is not necessarily a class/model type name. It can be
@@ -114,12 +125,11 @@ module Checkpoint
       other.is_a?(Resource) && entity.eql?(other.entity)
     end
 
-    # Check whether two Resources refer to the same entity.
+    # Check whether two Resources refer to the same entity by type and id.
     # @param other [Resource] Another Resource to compare with
-    # @return [Boolean] true when the other Resource's entity is the same as
-    #   determined by comparing them with `#==`.
+    # @return [Boolean] true when the other Resource's type and id are equal.
     def ==(other)
-      other.is_a?(Resource) && entity == other.entity
+      other.is_a?(Resource) && type == other.type && id == other.id
     end
   end
 end

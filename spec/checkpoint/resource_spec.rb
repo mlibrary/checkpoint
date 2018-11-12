@@ -13,6 +13,12 @@ RSpec.describe Checkpoint::Resource do
     end
   end
 
+  it 'returns itself when asked to convert to a resource' do
+    entity   = double('entity', id: 'id')
+    resource = described_class.new(entity)
+    expect(resource.to_resource).to be resource
+  end
+
   context 'with an entity that has no usable identifier' do
     it 'raises an error' do
       expect do
@@ -170,13 +176,12 @@ RSpec.describe Checkpoint::Resource do
       expect(resource1).to eq(resource2)
     end
 
-    it 'uses == to compare the entities' do
-      entity1   = double('entity', class: 'Entity', id: 'id')
-      entity2   = double('entity', class: 'Entity', id: 'id')
+    it 'is true when the type and id match, disgregarding entity class' do
+      entity1   = double('entity', resource_type: 'resource', id: 'id')
+      entity2   = double('other',  resource_type: 'resource', id: 'id')
       resource1 = described_class.new(entity1)
       resource2 = described_class.new(entity2)
 
-      allow(entity1).to receive(:==).with(entity2).and_return(true)
       expect(resource1).to eq(resource2)
     end
 

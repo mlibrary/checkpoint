@@ -104,5 +104,13 @@ module Checkpoint
         expect(res1).not_to eq(res2)
       end
     end
+
+    describe "#hash" do
+      it 'gives the same value for equal tokens' do
+        res1 = described_class.new('some-type', 'some-id')
+        res2 = described_class.new('some-type', 'some-id')
+        expect(res1.hash).to eq(res2.hash)
+      end
+    end
   end
 end

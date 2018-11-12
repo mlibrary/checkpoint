@@ -87,5 +87,13 @@ module Checkpoint
         expect(credential1).not_to eq(credential2)
       end
     end
+
+    describe "#hash" do
+      it 'gives the same value for equal tokens' do
+        credential1 = described_class.new('some-type', 'some-id')
+        credential2 = described_class.new('some-type', 'some-id')
+        expect(credential1.hash).to eq(credential2.hash)
+      end
+    end
   end
 end
