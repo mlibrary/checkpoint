@@ -3,9 +3,9 @@
 module Checkpoint
   class Agent
     # An Agent::Token is an identifier object for an Agent. It
-    # includes a type and an identifier. A {Permit} can be granted for a Token.
+    # includes a type and an identifier. A {Grant} can be created for a Token.
     # Concrete actors are resolved into a number of agents, and those agents'
-    # tokens will be checked for matching permits.
+    # tokens will be checked for matching grants.
     class Token
       attr_reader :type, :id
 
@@ -34,7 +34,7 @@ module Checkpoint
         self
       end
 
-      # @return [String] a token string suitable for granting or matching permits for this agent
+      # @return [String] a token string suitable for granting or matching grants for this agent
       def to_s
         "#{type}:#{id}"
       end

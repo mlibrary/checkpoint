@@ -3,26 +3,26 @@
 require 'checkpoint/agent/resolver'
 require 'checkpoint/credential/resolver'
 require 'checkpoint/resource/resolver'
-require 'checkpoint/permits'
+require 'checkpoint/grants'
 
 module Checkpoint
   # An Authority is the central point of contact for authorization questions in
-  # Checkpoint. It checks whether there are permits that would allow a given
+  # Checkpoint. It checks whether there are grants that would allow a given
   # action to be taken.
   class Authority
     def initialize(
       agent_resolver: Agent::Resolver.new,
       credential_resolver: Credential::Resolver.new,
       resource_resolver: Resource::Resolver.new,
-      permits: Permits.new)
+      grants: Grants.new)
 
       @agent_resolver      = agent_resolver
       @credential_resolver = credential_resolver
       @resource_resolver   = resource_resolver
-      @permits             = permits
+      @grants              = grants
     end
 
-    # Check whether there are any matching permits that would allow this actor
+    # Check whether there are any matching grants that would allow this actor
     # to take the action on the target entity.
     #
     # The parameters are generally intended to be the most convenient forms for
@@ -47,8 +47,8 @@ module Checkpoint
       #  action => credential tokens
       #  target => resource tokens
 
-      # Permit.where(agent: agents, credential: credentials, resource: resources)
-      # SELECT * FROM permits
+      # Grant.where(agent: agents, credential: credentials, resource: resources)
+      # SELECT * FROM grants
       # WHERE agent IN('user:gkostin', 'account-type:umich', 'affiliation:lib-staff')
       # AND credential IN('permission:edit', 'role:editor')
       # AND resource IN('listing:17', 'type:listing')
@@ -62,7 +62,7 @@ module Checkpoint
       #        ^^^                       ^^^^              ^^^^
       #   if current_user has at least one row in each of of these columns,
       #   they have been "granted permission"
-      permits.for(
+      grants.for(
         agent_resolver.expand(actor),
         credential_resolver.expand(action),
         resource_resolver.expand(entity)
@@ -79,8 +79,8 @@ module Checkpoint
       credentials = credential_resolver.expand(action)
       resources = resource_resolver.expand(entity)
 
-      permits.who(credentials, resources).map do |permit|
-        Agent::Token.new(permit.agent_type, permit.agent_id)
+      grants.who(credentials, resources).map do |grant|
+        Agent::Token.new(grant.agent_type, grant.agent_id)
       end.uniq
     end
 
@@ -94,8 +94,8 @@ module Checkpoint
       agents = agent_resolver.expand(actor)
       resources = resource_resolver.expand(entity)
 
-      permits.what(agents, resources).map do |permit|
-        Credential::Token.new(permit.credential_type, permit.credential_id)
+      grants.what(agents, resources).map do |grant|
+        Credential::Token.new(grant.credential_type, grant.credential_id)
       end.uniq
     end
 
@@ -109,8 +109,8 @@ module Checkpoint
       agents = agent_resolver.expand(actor)
       credentials = credential_resolver.expand(action)
 
-      permits.which(agents, credentials).map do |permit|
-        Resource::Token.new(permit.resource_type, permit.resource_id)
+      grants.which(agents, credentials).map do |grant|
+        Resource::Token.new(grant.resource_type, grant.resource_id)
       end.uniq
     end
 
@@ -132,14 +132,14 @@ module Checkpoint
     # @param entity [Object|Resource] The entity or Resource to which the
     #   grant will apply.
     # @return [Boolean] True if the grant was made; false if it failed.
-    def permit!(actor, action, entity)
-      permit = permits.permit!(
+    def grant!(actor, action, entity)
+      grant = grants.grant!(
         agent_resolver.convert(actor),
         credential_resolver.convert(action),
         resource_resolver.convert(entity)
       )
 
-      !permit.nil?
+      !grant.nil?
     end
 
     # Revoke a credential from a specific actor on an entity.
@@ -154,9 +154,9 @@ module Checkpoint
     # @param actor [Object|Agent] The actor from whom the grant should be revoked.
     # @param action [Symbol|String|Credential] The action or Credential to revoke.
     # @param entity [Object|Resource] The entity or Resource upon which the
-    # @return [Boolean] True if any permits were revoked; false if none were revoked.
+    # @return [Boolean] True if any grants were revoked; false if none were revoked.
     def revoke!(actor, action, entity)
-      revoked = permits.revoke!(
+      revoked = grants.revoke!(
         agent_resolver.convert(actor),
         credential_resolver.convert(action),
         resource_resolver.convert(entity)
@@ -174,6 +174,6 @@ module Checkpoint
 
     private
 
-    attr_reader :agent_resolver, :credential_resolver, :resource_resolver, :permits
+    attr_reader :agent_resolver, :credential_resolver, :resource_resolver, :grants
   end
 end

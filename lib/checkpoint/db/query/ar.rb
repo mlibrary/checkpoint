@@ -13,7 +13,7 @@ module Checkpoint::DB
     class AR < CartesianSelect
       attr_reader :agents, :resources
 
-      def initialize(agents, resources, scope: Permit)
+      def initialize(agents, resources, scope: Grant)
         super(scope: scope)
         @agents      = tokenize(agents)
         @resources   = tokenize(resources)

@@ -35,7 +35,7 @@ module Checkpoint
   class Resource
     attr_reader :entity
 
-    # Special string to be used when permitting or searching for permits on all
+    # Special string to be used when granting or searching for grants on all
     # types or all resources
     ALL = '(all)'
 
@@ -69,7 +69,7 @@ module Checkpoint
     #
     # Note that this is not necessarily a class/model type name. It can be
     # whatever type name is most useful for building tokens and inspecting
-    # permits for this types. For example, there may be objects that have
+    # grants for this types. For example, there may be objects that have
     # subtypes that are not modeled as objects, decorators, or collection
     # objects (like a specialized type for the root of a tree) that should
     # be treated as the element type.

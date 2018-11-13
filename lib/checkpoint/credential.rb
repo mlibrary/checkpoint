@@ -13,8 +13,8 @@ module Checkpoint
   #
   # Credentials are abstract; that is, they are not attached to a particular
   # actor or resource to be acted upon. A credential can be granted to an
-  # {Agent}, optionally applying to a particular resource, by way of a Permit.
-  # In other words, a credential can be likened to a class, while a permit can
+  # {Agent}, optionally applying to a particular resource, by way of a Grant.
+  # In other words, a credential can be likened to a class, while a grant can
   # be likened to an instance of that class, bound to a given agent and
   # possibly bound to a {Resource}.
   class Credential

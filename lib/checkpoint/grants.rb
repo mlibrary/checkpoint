@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Note: we do not require db/permit because Sequel requires the connection
+# Note: we do not require db/grant because Sequel requires the connection
 # to be set up before defining the model classes. The arrangment here
 # assumes that DB.initialize! will have been called if the default model
 # is to be used. In tests, that is done by spec/sequel_helper.rb. In an
@@ -10,10 +10,10 @@
 require 'checkpoint/db'
 
 module Checkpoint
-  # The repository of permits -- a simple wrapper for the Sequel Datastore / permits table.
-  class Permits
-    def initialize(permits: Checkpoint::DB::Permit)
-      @permits = permits
+  # The repository of grants -- a simple wrapper for the Sequel Datastore / grants table.
+  class Grants
+    def initialize(grants: Checkpoint::DB::Grant)
+      @grants = grants
     end
 
     def for(agents, credentials, resources)
@@ -30,7 +30,7 @@ module Checkpoint
     # this low-level interface returns the full grants, rather than a unique
     # set of agents.
     #
-    # @return [Array<Permit>] the set of grants of any of the credentials on
+    # @return [Array<Grant>] the set of grants of any of the credentials on
     #   any of the resources
     def who(credentials, resources)
       DB::Query::CR.new(credentials, resources, **scope).all
@@ -42,7 +42,7 @@ module Checkpoint
     # Note that this low-level interface returns the full grants, rather than a
     # unique set of credentials.
     #
-    # @return [Array<Permit>] the set of grants to any of the agents on any of
+    # @return [Array<Grant>] the set of grants to any of the agents on any of
     #   the resources
     def what(agents, resources)
       DB::Query::AR.new(agents, resources, **scope).all
@@ -54,19 +54,27 @@ module Checkpoint
     # low-level interface returns the full grants, rather than a unique set of
     # resources.
     #
-    # @return [Array<Permit>] the set of grants of any of the credentials to
+    # @return [Array<Grant>] the set of grants of any of the credentials to
     #   any of the agents
     def which(agents, credentials)
       DB::Query::AC.new(agents, credentials, **scope).all
     end
 
-    # Grant a single permit.
-    # @return [Permit] the saved Permit; nil if the save fails
-    def permit!(agent, credential, resource)
-      permits.from(agent, credential, resource).save
+    # Grant a credential.
+    #
+    # This method takes a single agent, credential, and resource to create a
+    # grant. They are not expanded, though they may be general (e.g., an
+    # agent for users of an instituion or a wildcard for resources of some type).
+    #
+    # @param agent [Agent] the agent to whom the credential should be granted
+    # @param credential [Credential] the credential to grant
+    # @param resource [Resource] the resource to which the credential should apply
+    # @return [Grant] the saved Grant; nil if the save fails
+    def grant!(agent, credential, resource)
+      grants.from(agent, credential, resource).save
     end
 
-    # Delete matching permits.
+    # Revoke a credential.
     #
     # Take care to note that this follows the same matching semantics as
     # {.for}. There is no expansion done here, but anything that matches what
@@ -74,11 +82,11 @@ module Checkpoint
     # behavior of {Checkpoint::Resource::Resolver}: if a specific resource has
     # been expanded by the resolver, and the array of the resource, a type
     # wildcard, and the any-resource wildcard (as used for inherited matching)
-    # is supplied, the results may be surprising where there are permits at
+    # is supplied, the results may be surprising where there are grants at
     # specific and general levels.
     #
     # In general, the parameters should not have been expanded. If the intent
-    # is to revoke a general permit, the general details should be supplied,
+    # is to revoke a general grant, the general details should be supplied,
     # and likewise for the specific case.
     #
     # Applications should interact with the {Checkpoint::Authority}, which
@@ -88,7 +96,7 @@ module Checkpoint
     # @param agents [Agent|Array] the agent or agents to match for deletion
     # @param credentials [Credential|Array] the credential or credentials to match for deletion
     # @param resources [Resource|Array] the resource or resources to match for deletion
-    # @return [Integer] the number of Permits deleted
+    # @return [Integer] the number of Grants deleted
     def revoke!(agents, credentials, resources)
       where(agents, credentials, resources).delete
     end
@@ -96,13 +104,13 @@ module Checkpoint
     private
 
     def scope
-      { scope: permits }
+      { scope: grants }
     end
 
     def where(agents, credentials, resources)
       DB::Query::ACR.new(agents, credentials, resources, **scope)
     end
 
-    attr_reader :permits
+    attr_reader :grants
   end
 end

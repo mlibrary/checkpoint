@@ -5,7 +5,7 @@ module Checkpoint::DB
     # A query object based on agents, credentials, and resources.
     #
     # This query mirrors the essence of the Checkpoint semantics; that is, it
-    # finds permits for any supplied agents, for any supplied credentials, for
+    # finds grants for any supplied agents, for any supplied credentials, for
     # any supplied resources.
     #
     # It can take single items or arrays and converts them all to their tokens
@@ -13,7 +13,7 @@ module Checkpoint::DB
     class ACR < CartesianSelect
       attr_reader :agents, :credentials, :resources
 
-      def initialize(agents, credentials, resources, scope: Permit)
+      def initialize(agents, credentials, resources, scope: Grant)
         super(scope: scope)
         @agents      = tokenize(agents)
         @credentials = tokenize(credentials)

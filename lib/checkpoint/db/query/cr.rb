@@ -13,7 +13,7 @@ module Checkpoint::DB
     class CR < CartesianSelect
       attr_reader :credentials, :resources
 
-      def initialize(credentials, resources, scope: Permit)
+      def initialize(credentials, resources, scope: Grant)
         super(scope: scope)
         @credentials = tokenize(credentials)
         @resources   = tokenize(resources)

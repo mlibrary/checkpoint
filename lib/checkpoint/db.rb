@@ -117,7 +117,7 @@ module Checkpoint
 
       def model_files
         [
-          'db/permit'
+          'db/grant'
         ]
       end
 
