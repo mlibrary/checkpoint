@@ -65,6 +65,52 @@ module Checkpoint
       end
     end
 
+    describe "#all?" do
+      context 'for the "all" resource' do
+        it "is true" do
+          token = described_class.all
+          expect(token.all?).to eq true
+        end
+      end
+
+      context 'for a type wildcard' do
+        it "is false" do
+          token = described_class.new('some-type', Checkpoint::Resource::ALL)
+          expect(token.all?).to eq false
+        end
+      end
+
+      context 'for a specific resource' do
+        it "is false" do
+          token = described_class.new('some-type', 'some-id')
+          expect(token.all?).to eq false
+        end
+      end
+    end
+
+    describe "#all_of_type?" do
+      context 'for the "all" resource' do
+        it "is false" do
+          token = described_class.all
+          expect(token.all_of_type?).to eq false
+        end
+      end
+
+      context 'for a type wildcard' do
+        it "is true" do
+          token = described_class.new('some-type', Checkpoint::Resource::ALL)
+          expect(token.all_of_type?).to eq true
+        end
+      end
+
+      context 'for a specific resource' do
+        it "is false" do
+          token = described_class.new('some-type', 'some-id')
+          expect(token.all_of_type?).to eq false
+        end
+      end
+    end
+
     describe "#eql?" do
       it 'considers resources as the same if type and id match' do
         res1 = described_class.new('some-type', 'some-id')
