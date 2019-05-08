@@ -37,6 +37,21 @@ module Checkpoint
         @all ||= new(Resource::ALL, Resource::ALL).freeze
       end
 
+      # Test whether this token is for the special "all" Resource.
+      #
+      # @return [Boolean] true if this token represents any/all resources
+      def all?
+        type == Resource::ALL && id == Resource::ALL
+      end
+
+      # Test whether this token is a wildcard for some specific type.
+      #
+      # @return [Boolean] true if this token has a specific type, but
+      #   represents any/all resources of that type
+      def all_of_type?
+        type != Resource::ALL && id == Resource::ALL
+      end
+
       # @return [Token] self; for convenience of taking a Resource or token
       def token
         self

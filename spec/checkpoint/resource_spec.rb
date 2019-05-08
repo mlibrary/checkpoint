@@ -79,6 +79,58 @@ RSpec.describe Checkpoint::Resource do
     end
   end
 
+  describe "#all?" do
+    let(:entity) { double('Entity', type: 'type', id: 'id') }
+
+    context 'for the "all" resource' do
+      it "is true" do
+        resource = described_class.all
+        expect(resource.all?).to eq true
+      end
+    end
+
+    context 'for a type wildcard' do
+      it "is false" do
+        resource = described_class.new(entity).all_of_type
+        expect(resource.all?).to eq false
+      end
+    end
+
+    context 'for a specific resource' do
+      it "is false" do
+        resource = described_class.new(entity)
+        expect(resource.all?).to eq false
+      end
+    end
+  end
+
+  describe "#all_of_type?" do
+    context 'for the "all" resource' do
+      it "is false" do
+        token = described_class.all
+        expect(token.all_of_type?).to eq false
+      end
+    end
+
+    context 'for a type wildcard' do
+      let(:entity) { double('Entity', type: 'type', id: 'id') }
+
+      it "is true" do
+        token = described_class.new(entity).all_of_type
+        expect(token.all_of_type?).to eq true
+      end
+    end
+
+    context 'for a specific resource' do
+      let(:entity) { double('Entity', type: 'type', id: 'id') }
+
+      it "is false" do
+        token = described_class.new(entity)
+        expect(token.all_of_type?).to eq false
+      end
+    end
+  end
+
   # @botimer - 2018-02-26: I'm of two minds on this kind of test. There is an
   # argument that including some kind of realistic example (say, a Document
   # type) helps clarify expected usage. There is also an argument that this is

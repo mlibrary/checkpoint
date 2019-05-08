@@ -54,6 +54,14 @@ module Checkpoint
       AllOfAnyType.new
     end
 
+    # Test whether this Resource represents all entities of all types.
+    #
+    # @see {::all}
+    # @return [Boolean] true if this is a universal wildcard
+    def all?
+      type == ALL && id == ALL
+    end
+
     # Convert this object to a Resource.
     #
     # For Checkpoint-supplied Resources, this is an identity operation,
@@ -115,6 +123,14 @@ module Checkpoint
     # @return [Resource] A Resource of the same type, but for all members
     def all_of_type
       Resource::AllOfType.new(type)
+    end
+
+    # Test whether this is a Resource wildcard of some specific type.
+    #
+    # @return [Boolean] true if this Resource has a specific type, but
+    #   has the any/all ID, representing any Resources of that type
+    def all_of_type?
+      type != ALL && id == ALL
     end
 
     # Check whether two Resources refer to the same entity.
