@@ -32,7 +32,7 @@ Metrics/BlockLength:
 Layout/SpaceInsideBlockBraces:
   Enabled: false
 
-Layout/IndentArray:
+Layout/IndentFirstArrayElement:
   EnforcedStyle: consistent
 
 Style/ClassAndModuleChildren:

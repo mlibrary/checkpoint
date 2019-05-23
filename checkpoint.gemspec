@@ -7,8 +7,8 @@ require "checkpoint/version"
 Gem::Specification.new do |spec|
   spec.name    = "checkpoint"
   spec.version = Checkpoint::VERSION
-  spec.authors = ["Noah Botimer"]
-  spec.email   = ["botimer@umich.edu"]
+  spec.authors = ["Noah Botimer", "Aaron Elkiss"]
+  spec.email   = ["botimer@umich.edu", "aelkiss@umich.edu"]
   spec.license = "BSD-3-Clause"
 
   spec.summary = <<~SUMMARY
@@ -35,7 +35,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rubocop", "~> 0.52"
-  spec.add_development_dependency "rubocop-rails", "~> 1.1"
   spec.add_development_dependency "rubocop-rspec", "~> 1.16"
   spec.add_development_dependency "sqlite3", "~> 1.3"
   spec.add_development_dependency "yard", "~> 0.9"
