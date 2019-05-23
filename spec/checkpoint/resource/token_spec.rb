@@ -14,6 +14,14 @@ module Checkpoint
       expect(resource.id).to eq('an_id')
     end
 
+    it 'aliases resource_type and type' do
+      expect(resource.resource_type).to eq(resource.type)
+    end
+
+    it 'aliases resource_id and id' do
+      expect(resource.resource_id).to eq(resource.id)
+    end
+
     context 'when given non-string inputs' do
       subject(:resource) { described_class.new(Object, 1) }
 

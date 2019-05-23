@@ -52,6 +52,8 @@ module Checkpoint
 
       alias == eql?
       alias inspect uri
+      alias agent_id id
+      alias agent_type type
     end
   end
 end

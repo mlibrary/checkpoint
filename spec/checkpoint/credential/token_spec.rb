@@ -14,6 +14,14 @@ module Checkpoint
       expect(credential.id).to eq('an_id')
     end
 
+    it 'aliases credential_type and type' do
+      expect(credential.credential_type).to eq(credential.type)
+    end
+
+    it 'aliases credential_id and id' do
+      expect(credential.credential_id).to eq(credential.id)
+    end
+
     context 'when given non-string inputs' do
       subject(:credential) { described_class.new(Object, 1) }
 
