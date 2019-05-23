@@ -80,6 +80,8 @@ module Checkpoint
 
       alias == eql?
       alias inspect uri
+      alias resource_type type
+      alias resource_id id
     end
   end
 end

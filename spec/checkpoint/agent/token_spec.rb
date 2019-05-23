@@ -14,6 +14,14 @@ module Checkpoint
       expect(agent.id).to eq('an_id')
     end
 
+    it 'aliases agent_type and type' do
+      expect(agent.agent_type).to eq(agent.type)
+    end
+
+    it 'aliases agent_id and id' do
+      expect(agent.agent_id).to eq(agent.id)
+    end
+
     context 'when given non-string inputs' do
       subject(:agent) { described_class.new(Object, 1) }
 

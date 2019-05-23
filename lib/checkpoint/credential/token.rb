@@ -51,6 +51,8 @@ module Checkpoint
 
       alias == eql?
       alias inspect uri
+      alias credential_type type
+      alias credential_id id
     end
   end
 end
