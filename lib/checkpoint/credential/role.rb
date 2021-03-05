@@ -15,7 +15,7 @@ module Checkpoint
     # should only be necessary if the application needs to extend the actual
     # behavior of the Role objects, rather than just which ones are resolved.
     class Role < Credential
-      TYPE = 'role'
+      TYPE = "role"
 
       def type
         TYPE

@@ -15,32 +15,30 @@ module Checkpoint::DB
 
       def initialize(agents, resources, scope: Grant)
         super(scope: scope)
-        @agents      = tokenize(agents)
-        @resources   = tokenize(resources)
+        @agents = tokenize(agents)
+        @resources = tokenize(resources)
       end
 
       def conditions
         super.merge(
-          agent_token:      agent_params.placeholders,
-          resource_token:   resource_params.placeholders
+          agent_token: agent_params.placeholders,
+          resource_token: resource_params.placeholders
         )
       end
 
       def parameters
-        super.merge(Hash[
-          agent_params.values +
-          resource_params.values
-        ])
+        super.merge((agent_params.values +
+          resource_params.values).to_h)
       end
 
       protected
 
       def agent_params
-        Params.new(agents, 'at')
+        Params.new(agents, "at")
       end
 
       def resource_params
-        Params.new(resources, 'rt')
+        Params.new(resources, "rt")
       end
     end
   end

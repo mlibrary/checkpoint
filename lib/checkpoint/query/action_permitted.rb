@@ -20,11 +20,12 @@ module Checkpoint
         user,
         action,
         target = Checkpoint::Resource.all,
-        authority: Authority::RejectAll.new)
+        authority: Authority::RejectAll.new
+      )
 
-        @user      = user
-        @action    = action.to_sym
-        @target    = target
+        @user = user
+        @action = action.to_sym
+        @target = target
         @authority = authority
       end
 

@@ -23,7 +23,7 @@ module Checkpoint
         other.respond_to?(:type) && type == other.type
       end
 
-      alias == eql?
+      alias_method :==, :eql?
     end
   end
 end

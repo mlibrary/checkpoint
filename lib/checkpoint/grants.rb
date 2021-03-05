@@ -7,7 +7,7 @@
 # application, there should be an initializer that reads whatever appropriate
 # configuration and does the initialization.
 
-require 'checkpoint/db'
+require "checkpoint/db"
 
 module Checkpoint
   # The repository of grants -- a simple wrapper for the Sequel Datastore / grants table.
@@ -104,7 +104,7 @@ module Checkpoint
     private
 
     def scope
-      { scope: grants }
+      {scope: grants}
     end
 
     def where(agents, credentials, resources)

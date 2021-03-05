@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'ostruct'
-require 'logger'
-require 'yaml'
+require "ostruct"
+require "logger"
+require "yaml"
 
-require_relative 'db/cartesian_select'
-require_relative 'db/params'
-require_relative 'db/query/acr'
-require_relative 'db/query/ac'
-require_relative 'db/query/ar'
-require_relative 'db/query/cr'
+require_relative "db/cartesian_select"
+require_relative "db/params"
+require_relative "db/query/acr"
+require_relative "db/query/ac"
+require_relative "db/query/ar"
+require_relative "db/query/cr"
 
 module Checkpoint
   # Module for everything related to the Checkpoint database.
@@ -17,9 +17,9 @@ module Checkpoint
     # Any error with the database that Checkpoint itself detects but cannot handle.
     class DatabaseError < StandardError; end
 
-    CONNECTION_ERROR = 'The Checkpoint database is not initialized. Call initialize! first.'
+    CONNECTION_ERROR = "The Checkpoint database is not initialized. Call initialize! first."
 
-    ALREADY_CONNECTED = 'Already connected; refusing to connect to another database.'
+    ALREADY_CONNECTED = "Already connected; refusing to connect to another database."
 
     MISSING_CONFIG = <<~MSG
       CHECKPOINT_DATABASE_URL and DATABASE_URL are both missing and a connection
@@ -91,7 +91,7 @@ module Checkpoint
       def migrate!
         connect! unless connected?
         Sequel.extension :migration
-        Sequel::Migrator.run(db, File.join(__dir__, '../../db/migrations'), table: schema_table)
+        Sequel::Migrator.run(db, File.join(__dir__, "../../db/migrations"), table: schema_table)
       end
 
       def schema_table
@@ -99,7 +99,7 @@ module Checkpoint
       end
 
       def schema_file
-        'db/checkpoint.yml'
+        "db/checkpoint.yml"
       end
 
       def dump_schema!
@@ -117,19 +117,19 @@ module Checkpoint
 
       def model_files
         [
-          'db/grant'
+          "db/grant"
         ]
       end
 
       # Merge url, opts, or db settings from a hash into our config
       def merge_config!(config = {})
-        self.config.url  = config[:url]  if config.key?(:url)
+        self.config.url = config[:url] if config.key?(:url)
         self.config.opts = config[:opts] if config.key?(:opts)
-        self.config.db   = config[:db]   if config.key?(:db)
+        self.config.db = config[:db] if config.key?(:db)
       end
 
       def conn_opts
-        log = { logger: Logger.new('db/checkpoint.log') }
+        log = {logger: Logger.new("db/checkpoint.log")}
         url = config.url
         opts = config.opts
         if url
@@ -143,7 +143,7 @@ module Checkpoint
 
       def config
         @config ||= OpenStruct.new(
-          url: ENV['CHECKPOINT_DATABASE_URL'] || ENV['DATABASE_URL']
+          url: ENV["CHECKPOINT_DATABASE_URL"] || ENV["DATABASE_URL"]
         )
       end
 

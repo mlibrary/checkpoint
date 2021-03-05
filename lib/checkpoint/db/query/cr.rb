@@ -16,31 +16,29 @@ module Checkpoint::DB
       def initialize(credentials, resources, scope: Grant)
         super(scope: scope)
         @credentials = tokenize(credentials)
-        @resources   = tokenize(resources)
+        @resources = tokenize(resources)
       end
 
       def conditions
         super.merge(
           credential_token: credential_params.placeholders,
-          resource_token:   resource_params.placeholders
+          resource_token: resource_params.placeholders
         )
       end
 
       def parameters
-        super.merge(Hash[
-          credential_params.values +
-          resource_params.values
-        ])
+        super.merge((credential_params.values +
+          resource_params.values).to_h)
       end
 
       protected
 
       def credential_params
-        Params.new(credentials, 'ct')
+        Params.new(credentials, "ct")
       end
 
       def resource_params
-        Params.new(resources, 'rt')
+        Params.new(resources, "rt")
       end
     end
   end
