@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
-if ENV['COVERAGE'] || ENV['TRAVIS']
+if ENV["COVERAGE"] || ENV["TRAVIS"]
   require "simplecov"
   require "coveralls"
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
@@ -9,9 +9,9 @@ if ENV['COVERAGE'] || ENV['TRAVIS']
     Coveralls::SimpleCov::Formatter
   ])
   SimpleCov.start do
-    add_filter 'spec/sequel_helper.rb'
-    add_filter 'spec/support/migration_check.rb'
-    add_filter 'lib/checkpoint/railtie.rb'
+    add_filter "spec/sequel_helper.rb"
+    add_filter "spec/support"
+    add_filter "lib/checkpoint/railtie.rb"
   end
 end
 

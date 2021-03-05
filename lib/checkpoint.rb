@@ -2,8 +2,8 @@
 
 require "checkpoint/version"
 
-require 'sequel'
-require 'ettin'
+require "sequel"
+require "ettin"
 
 # All of the Checkpoint components are contained within this top-level module.
 module Checkpoint
@@ -12,9 +12,9 @@ module Checkpoint
   class NoIdentifierError < StandardError; end
 end
 
-require 'checkpoint/agent'
-require 'checkpoint/credential'
-require 'checkpoint/resource'
-require 'checkpoint/authority'
-require 'checkpoint/query'
-require 'checkpoint/railtie' if defined?(Rails)
+require "checkpoint/agent"
+require "checkpoint/credential"
+require "checkpoint/resource"
+require "checkpoint/authority"
+require "checkpoint/query"
+require "checkpoint/railtie" if defined?(Rails)

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'checkpoint/agent/resolver'
-require 'checkpoint/credential/resolver'
-require 'checkpoint/resource/resolver'
-require 'checkpoint/grants'
+require "checkpoint/agent/resolver"
+require "checkpoint/credential/resolver"
+require "checkpoint/resource/resolver"
+require "checkpoint/grants"
 
 module Checkpoint
   # An Authority is the central point of contact for authorization questions in
@@ -14,12 +14,13 @@ module Checkpoint
       agent_resolver: Agent::Resolver.new,
       credential_resolver: Credential::Resolver.new,
       resource_resolver: Resource::Resolver.new,
-      grants: Grants.new)
+      grants: Grants.new
+    )
 
-      @agent_resolver      = agent_resolver
+      @agent_resolver = agent_resolver
       @credential_resolver = credential_resolver
-      @resource_resolver   = resource_resolver
-      @grants              = grants
+      @resource_resolver = resource_resolver
+      @grants = grants
     end
 
     # Check whether there are any matching grants that would allow this actor

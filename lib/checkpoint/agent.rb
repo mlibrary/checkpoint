@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'checkpoint/agent/resolver'
-require 'checkpoint/agent/token'
+require "checkpoint/agent/resolver"
+require "checkpoint/agent/token"
 
 module Checkpoint
   # An Agent is an any person or entity that might be granted various

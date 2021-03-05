@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'checkpoint/resource/token'
-require 'checkpoint/resource/all_of_type'
-require 'checkpoint/resource/all_of_any_type'
-require 'checkpoint/resource/any_entity'
-require 'checkpoint/resource/any_entity_of_type'
+require "checkpoint/resource/token"
+require "checkpoint/resource/all_of_type"
+require "checkpoint/resource/all_of_any_type"
+require "checkpoint/resource/any_entity"
+require "checkpoint/resource/any_entity_of_type"
 
 module Checkpoint
   # A Resource is any application object that should be considered for
@@ -37,7 +37,7 @@ module Checkpoint
 
     # Special string to be used when granting or searching for grants on all
     # types or all resources
-    ALL = '(all)'
+    ALL = "(all)"
 
     # Creates a Resource for this entity. Prefer the factory method {::from},
     # which applies default conversion rules. This constructor does not

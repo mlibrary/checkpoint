@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'checkpoint/resource/resolver'
+require "checkpoint/resource/resolver"
 
 module Checkpoint
   class Resource
@@ -78,10 +78,10 @@ module Checkpoint
         to_s.hash
       end
 
-      alias == eql?
-      alias inspect uri
-      alias resource_type type
-      alias resource_id id
+      alias_method :==, :eql?
+      alias_method :inspect, :uri
+      alias_method :resource_type, :type
+      alias_method :resource_id, :id
     end
   end
 end

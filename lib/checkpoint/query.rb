@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'checkpoint/query/role_granted'
-require 'checkpoint/query/action_permitted'
+require "checkpoint/query/role_granted"
+require "checkpoint/query/action_permitted"
 
 module Checkpoint
   # The Query module is a container for the various types of checks or

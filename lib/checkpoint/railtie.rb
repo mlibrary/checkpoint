@@ -68,9 +68,9 @@ module Checkpoint
       unless config.url
         case Rails.env
         when "development"
-          config[:opts] = { adapter: 'sqlite', database: 'db/checkpoint_development.sqlite3' }
+          config[:opts] = {adapter: "sqlite", database: "db/checkpoint_development.sqlite3"}
         when "test"
-          config[:opts] = { adapter: 'sqlite' }
+          config[:opts] = {adapter: "sqlite"}
         end
       end
 
@@ -95,8 +95,8 @@ module Checkpoint
     end
 
     def rake_files
-      base = Pathname(__dir__) + '../tasks/'
-      [base + 'migrate.rake']
+      base = Pathname(__dir__) + "../tasks/"
+      [base + "migrate.rake"]
     end
 
     rake_tasks do
