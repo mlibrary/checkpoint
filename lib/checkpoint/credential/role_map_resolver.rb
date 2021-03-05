@@ -45,7 +45,7 @@ class Checkpoint::Credential
 
     def roles_granting(action)
       if permission_map.key?(action)
-        permission_map[action].map {|role| Role.new(role) }
+        permission_map[action].map { |role| Role.new(role) }
       else
         []
       end

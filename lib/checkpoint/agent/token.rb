@@ -50,10 +50,10 @@ module Checkpoint
         to_s.hash
       end
 
-      alias == eql?
-      alias inspect uri
-      alias agent_id id
-      alias agent_type type
+      alias_method :==, :eql?
+      alias_method :inspect, :uri
+      alias_method :agent_id, :id
+      alias_method :agent_type, :type
     end
   end
 end

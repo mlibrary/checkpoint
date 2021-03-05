@@ -4,8 +4,8 @@
 # Also remember to tag the example groups with `DB: true` so each one is
 # wrapped in a transaction that rolls back to handle cleanup.
 
-require_relative 'spec_helper'
-require 'checkpoint/db'
+require_relative "spec_helper"
+require "checkpoint/db"
 
 unless Checkpoint::DB.connected?
   if Checkpoint::DB.conn_opts.empty?

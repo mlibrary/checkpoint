@@ -37,9 +37,9 @@ module Checkpoint
       # @param authority [Checkpoint::Authority] the authority to ask about
       #   this role-grant
       def initialize(user, role, target = Resource.all, authority: Authority::RejectAll.new)
-        @user      = user
-        @role      = role.to_sym
-        @target    = target
+        @user = user
+        @role = role.to_sym
+        @target = target
         @authority = authority
       end
 

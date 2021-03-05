@@ -11,7 +11,7 @@ module Checkpoint
       attr_reader :items, :prefix
 
       def initialize(items, prefix)
-        @items  = [items].flatten
+        @items = [items].flatten
         @prefix = prefix
       end
 
@@ -24,10 +24,10 @@ module Checkpoint
       def values
         items.map.with_index do |item, i|
           value = if item.respond_to?(:sql_value)
-                    item.sql_value
-                  else
-                    item.to_s
-                  end
+            item.sql_value
+          else
+            item.to_s
+          end
           [:"#{prefix}_#{i}", value]
         end
       end

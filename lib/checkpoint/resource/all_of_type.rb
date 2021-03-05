@@ -22,7 +22,7 @@ module Checkpoint
         other.is_a?(Resource) && type == other.type
       end
 
-      alias == eql?
+      alias_method :==, :eql?
     end
   end
 end

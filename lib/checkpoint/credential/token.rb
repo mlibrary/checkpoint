@@ -49,10 +49,10 @@ module Checkpoint
         to_s.hash
       end
 
-      alias == eql?
-      alias inspect uri
-      alias credential_type type
-      alias credential_id id
+      alias_method :==, :eql?
+      alias_method :inspect, :uri
+      alias_method :credential_type, :type
+      alias_method :credential_id, :id
     end
   end
 end

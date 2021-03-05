@@ -18,7 +18,7 @@ module Checkpoint
     # the actual behavior of the Permission objects, rather than just which
     # ones are resolved.
     class Permission < Credential
-      TYPE = 'permission'
+      TYPE = "permission"
 
       def type
         TYPE
