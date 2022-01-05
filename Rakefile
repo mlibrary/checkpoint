@@ -5,7 +5,7 @@ require "rspec/core/rake_task"
 
 RSpec::Core::RakeTask.new(:spec)
 
-load 'lib/tasks/migrate.rake'
+load "lib/tasks/migrate.rake"
 
 task default: :spec
 

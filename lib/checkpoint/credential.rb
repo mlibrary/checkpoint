@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'checkpoint/credential/resolver'
-require 'checkpoint/credential/role_map_resolver'
-require 'checkpoint/credential/role'
-require 'checkpoint/credential/permission'
-require 'checkpoint/credential/token'
+require "checkpoint/credential/resolver"
+require "checkpoint/credential/role_map_resolver"
+require "checkpoint/credential/role"
+require "checkpoint/credential/permission"
+require "checkpoint/credential/token"
 
 module Checkpoint
   # A Credential is the permission to take a particular action, or any
@@ -19,7 +19,7 @@ module Checkpoint
   # possibly bound to a {Resource}.
   class Credential
     attr_reader :type, :id
-    alias name id
+    alias_method :name, :id
 
     # Create a new generic Credential. This should generally not be called,
     # preferring to use a factory or instantiate a {Permission}, {Role}, or
@@ -38,8 +38,8 @@ module Checkpoint
     #
     # @param name [String|Symbol] the name of this credential
     def initialize(name)
-      @id   = name.to_s
-      @type = 'credential'
+      @id = name.to_s
+      @type = "credential"
     end
 
     # Return the list of Credentials that would grant this one.
@@ -90,6 +90,6 @@ module Checkpoint
       type.eql?(other.type) && name.eql?(other.id)
     end
 
-    alias == eql?
+    alias_method :==, :eql?
   end
 end
