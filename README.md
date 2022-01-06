@@ -21,6 +21,20 @@ And then execute:
 
     $ bundle
 
+## Compatibility
+
+Checkpoint is intended to be compatible with all community-supported Ruby branches (i.e., minor versions), currently:
+
+ - 2.6
+ - 2.7
+ - 3.0
+ - 3.1
+
+We prefer the newest syntax and linting rules that preserve compatibility with the oldest branch in normal maintenance.
+When the security maintenance for a branch expires, Checkpoint's compatibility should be considered unsupported.
+
+See also, [Ruby's branch maintenance policy](https://www.ruby-lang.org/en/downloads/branches/).
+
 ## Documentation
 
 User documentation source is available in the `docs` directory and in rendered format
