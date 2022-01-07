@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mlibrary/checkpoint.svg?branch=master)](https://travis-ci.org/mlibrary/checkpoint?branch=master)
+[![Tests](https://github.com/mlibrary/checkpoint/actions/workflows/test.yml)](https://github.com/mlibrary/checkpoint/actions/workflows/test.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/mlibrary/checkpoint/badge.svg?branch=master)](https://coveralls.io/github/mlibrary/checkpoint?branch=master)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
 [![User Docs](https://img.shields.io/badge/user_docs-readthedocs-blue.svg)](https://checkpoint.readthedocs.io/en/latest)
