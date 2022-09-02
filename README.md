@@ -1,5 +1,5 @@
 [![Tests](https://github.com/mlibrary/checkpoint/actions/workflows/test.yml/badge.svg)](https://github.com/mlibrary/checkpoint/actions/workflows/test.yml)
-[![Coverage Status](https://coveralls.io/repos/github/mlibrary/checkpoint/badge.svg?branch=master)](https://coveralls.io/github/mlibrary/checkpoint?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/mlibrary/checkpoint/badge.svg?branch=main)](https://coveralls.io/github/mlibrary/checkpoint?branch=main)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
 [![User Docs](https://img.shields.io/badge/user_docs-readthedocs-blue.svg)](https://checkpoint.readthedocs.io/en/latest)
 [![API Docs](https://img.shields.io/badge/API_docs-rubydoc.info-blue.svg)](https://www.rubydoc.info/gems/checkpoint)
