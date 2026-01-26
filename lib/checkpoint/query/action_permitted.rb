@@ -22,7 +22,6 @@ module Checkpoint
         target = Checkpoint::Resource.all,
         authority: Authority::RejectAll.new
       )
-
         @user = user
         @action = action.to_sym
         @target = target

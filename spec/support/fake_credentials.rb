@@ -5,13 +5,13 @@ require "checkpoint/credential/permission"
 
 class FakeEditor < Checkpoint::Credential::Role
   def initialize
-    super "editor"
+    super("editor")
   end
 end
 
 class FakeRead < Checkpoint::Credential::Permission
   def initialize
-    super "read"
+    super("read")
   end
 
   def granted_by

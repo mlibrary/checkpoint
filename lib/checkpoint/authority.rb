@@ -16,7 +16,6 @@ module Checkpoint
       resource_resolver: Resource::Resolver.new,
       grants: Grants.new
     )
-
       @agent_resolver = agent_resolver
       @credential_resolver = credential_resolver
       @resource_resolver = resource_resolver
