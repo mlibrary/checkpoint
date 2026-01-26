@@ -26,16 +26,18 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "ettin", "~> 1.1"
-  spec.add_dependency "sequel", "~> 5.6"
+  spec.add_dependency "sequel", "~> 5.100"
 
-  spec.add_development_dependency "bundler", "~> 2.0"
+  spec.add_development_dependency "bundler"
+  spec.add_development_dependency "logger"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "simplecov-lcov"
+  spec.add_development_dependency "ostruct"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "standard", "~> 1.5"
-  spec.add_development_dependency "sqlite3", "~> 1.3"
+  spec.add_development_dependency "standard", "~> 1.53"
+  spec.add_development_dependency "sqlite3", "~> 2.9"
   spec.add_development_dependency "yard", "~> 0.9"
 end
