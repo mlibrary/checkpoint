@@ -15,8 +15,11 @@ if defined?(Rails)
 
   # Run our schema load to make sure that the version number is stored in
   # schema_info, so migrations don't try to double-run. The actual table
-  # structure is handled by the Rails schema:dump and schema:load.
-  # A db:setup will trigger this, so we don't have to handle it separately.
+  # structure is handled by the Rails schema:dump and schema:load when
+  # checkpoint uses the same database as the application. For separate
+  # checkpoint databases, checkpoint:schema:load is a no-op on fresh databases
+  # (load_schema! is resilient when checkpoint.yml or the schema table is
+  # absent) and checkpoint:migrate handles table creation instead.
   Rake::Task["db:schema:load"].enhance do
     Rake::Task["checkpoint:schema:load"].invoke
   end
@@ -24,6 +27,26 @@ if defined?(Rails)
   # We hook into db:migrate for convenience.
   Rake::Task["db:migrate"].enhance do
     Rake::Task["checkpoint:migrate"].invoke
+  end
+
+  # Hook into db:setup (db:create + db:schema:load + db:seed) so that
+  # checkpoint tables are created when setting up a fresh database via
+  # bin/setup or capistrano on a new server, even when the checkpoint database
+  # is separate from the application database and its tables are therefore not
+  # included in schema.rb.
+  if Rake::Task.task_defined?("db:setup")
+    Rake::Task["db:setup"].enhance do
+      Rake::Task["checkpoint:migrate"].invoke
+    end
+  end
+
+  # Same for db:prepare (Rails 6+), which is the preferred task in bin/setup.
+  # It runs db:schema:load on a fresh database (skipping db:migrate), so
+  # without this hook checkpoint tables would not be created.
+  if Rake::Task.task_defined?("db:prepare")
+    Rake::Task["db:prepare"].enhance do
+      Rake::Task["checkpoint:migrate"].invoke
+    end
   end
 
 end

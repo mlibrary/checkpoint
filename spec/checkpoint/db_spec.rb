@@ -64,6 +64,38 @@ RSpec.describe Checkpoint::DB do
           require_relative("../support/migration_check")
         end.to raise_error RuntimeError
       end
+
+      context "with auto_migrate enabled" do
+        before(:each) { Checkpoint::DB.config.auto_migrate = true }
+        after(:each) { Checkpoint::DB.config.auto_migrate = false }
+
+        it "calls migrate! once and retries when model loading raises a database error" do
+          db = Sequel.sqlite
+          Checkpoint::DB.connect!(db: db)
+
+          call_count = 0
+          allow(Checkpoint::DB).to receive(:model_files) do
+            call_count += 1
+            raise Sequel::DatabaseError, "no such table: grants" if call_count == 1
+            []
+          end
+
+          expect(Checkpoint::DB).to receive(:migrate!).once
+          expect { Checkpoint::DB.initialize! }.not_to raise_error
+        end
+
+        it "still raises a DatabaseError if migrate! does not resolve the problem" do
+          db = Sequel.sqlite
+          Checkpoint::DB.connect!(db: db)
+
+          allow(Checkpoint::DB).to receive(:model_files) do
+            raise Sequel::DatabaseError, "no such table: grants"
+          end
+          allow(Checkpoint::DB).to receive(:migrate!)
+
+          expect { Checkpoint::DB.initialize! }.to raise_error Checkpoint::DB::DatabaseError
+        end
+      end
     end
   end
 

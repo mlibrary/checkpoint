@@ -41,13 +41,27 @@ module Checkpoint
       # requires all of the Checkpoint model classes. It is required to do the
       # connection setup first because of the design decision in Sequel that
       # the schema is examined at the time of extending Sequel::Model.
+      #
+      # If {config.auto_migrate} is true (or the keyword argument is passed),
+      # a single migration attempt will be made automatically when a database
+      # error is encountered during model loading. This is useful in
+      # environments where migrations may not have been run yet — for example,
+      # when a Rails initializer calls this method and a rake task (such as
+      # db:migrate) is the process that will create the tables. Enable via the
+      # Rails config: `config.checkpoint.auto_migrate = true`.
       def initialize!
         connect! unless connected?
+        migrated = false
         begin
           model_files.each do |file|
             require_relative file
           end
         rescue Sequel::DatabaseError, NoMethodError => e
+          if config.auto_migrate && !migrated
+            migrated = true
+            migrate!
+            retry
+          end
           raise DatabaseError, LOAD_ERROR + "\n" + e.message
         end
         db
@@ -110,9 +124,16 @@ module Checkpoint
 
       def load_schema!
         connect! unless connected?
-        version = YAML.load_file(schema_file)[:version]
-        db[schema_table].delete
-        db[schema_table].insert(version: version)
+        return unless db.table_exists?(schema_table)
+        begin
+          version = YAML.load_file(schema_file)[:version]
+          db[schema_table].delete
+          db[schema_table].insert(version: version)
+        rescue Errno::ENOENT
+          # checkpoint.yml doesn't exist yet (e.g., fresh separate database before
+          # checkpoint:migrate has been run). Skip gracefully; checkpoint:migrate
+          # will create the schema table and dump the version file.
+        end
       end
 
       def model_files
@@ -143,7 +164,8 @@ module Checkpoint
 
       def config
         @config ||= OpenStruct.new(
-          url: ENV["CHECKPOINT_DATABASE_URL"] || ENV["DATABASE_URL"]
+          url: ENV["CHECKPOINT_DATABASE_URL"] || ENV["DATABASE_URL"],
+          auto_migrate: false
         )
       end
 

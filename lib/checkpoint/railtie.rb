@@ -15,8 +15,28 @@ module Checkpoint
   #      rails server or console, we want to initialize!, but when we are in
   #      a rake task to update the database, we have to let it connect, but
   #      not initialize.
+  #
+  # == Configuration
+  #
+  # The following options can be set in your Rails application configuration:
+  #
+  #   config.checkpoint.auto_migrate = true
+  #
+  # When +auto_migrate+ is true, Checkpoint will automatically run its
+  # migrations if the database tables are missing during initialization. This
+  # is useful for first-time deployments where the checkpoint database has been
+  # created but not yet migrated. It is safe to enable in production because
+  # only a single migration attempt is made per initialization.
+  #
+  # Applications that call Checkpoint::DB.initialize! directly in their own
+  # initializers should either:
+  #   a) Set config.checkpoint.auto_migrate = true (recommended), or
+  #   b) Guard the call with `unless Checkpoint::Railtie.under_rake?`
   class Railtie < Rails::Railtie
     railtie_name :checkpoint
+
+    config.checkpoint = ActiveSupport::OrderedOptions.new
+    config.checkpoint.auto_migrate = false
 
     class << self
       # Register a callback to run before anything in 'config/initializers' runs.
@@ -73,6 +93,11 @@ module Checkpoint
           config[:opts] = {adapter: "sqlite"}
         end
       end
+
+      # Propagate the Rails-level auto_migrate setting to Checkpoint::DB.config
+      # so that any call to initialize! — including from app initializers — picks
+      # it up without needing to know about the Rails config directly.
+      config.auto_migrate = Rails.configuration.checkpoint.auto_migrate
 
       Railtie.before_blocks.each do |block|
         block.call(config.to_h)
